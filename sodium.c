@@ -23,6 +23,7 @@
 char files[500][255];
 int array_pos = 0;
 int nfiles = 0;
+int fullscreen = 0;
 
 /* Check to see if the file is a valid image */
 static gboolean
@@ -75,7 +76,7 @@ load_images(ClutterActor *stage, int direction)
 			return;
 	}
 
-	for (i = array_pos; i < (array_pos + 9); i++) {
+	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		printf("Loading image: %s\n", files[i]);
 		pixbuf = gdk_pixbuf_new_from_file_at_size(files[i],  
 								300, 300, NULL);
@@ -106,18 +107,24 @@ load_images(ClutterActor *stage, int direction)
 static void
 key_release_cb(ClutterActor *stage, ClutterKeyEvent *kev, gpointer user_data)
 {
+	printf("Got key event: %d\n", clutter_key_event_symbol(kev));
+
 	switch (clutter_key_event_symbol(kev)) {
 	case CLUTTER_Down:
-		printf("Got key event: %d\n", clutter_key_event_symbol(kev));
 		load_images(stage, FWD);
 		break;
 	case CLUTTER_Up:
-		printf("Got key event: %d\n", clutter_key_event_symbol(kev));
 		load_images(stage, BWD);
 		break;
+	case CLUTTER_f:
+		if (fullscreen == 0) {
+			fullscreen = 1;
+		} else {
+			fullscreen = 0;
+		}
+	case CLUTTER_Escape:
 	case CLUTTER_q:
-		printf("Got key event: %d\n", clutter_key_event_symbol(kev));
-		clutter_main_quit ();
+		clutter_main_quit();
 		break;
 	}
 }
@@ -127,6 +134,7 @@ main(int argc, char *argv[])
 {
 	ClutterActor *stage;
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
+	const gchar *stage_title = { "sodium - DVD Cover Art Viewer" };
 
 	if (argc != 2) {
       		printf("\n    usage: %s image_directory\n\n", argv[0]);
@@ -138,7 +146,7 @@ main(int argc, char *argv[])
 	stage = clutter_stage_get_default();
 	clutter_actor_set_size(stage, 900, 900);
 	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
-
+	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	clutter_actor_show_all(stage);
 
 	process_directory(argv[1]);

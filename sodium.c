@@ -75,7 +75,15 @@ load_images(ClutterActor *stage, int direction)
 		if (array_pos >= nfiles)
 			return;
 	}
-
+	
+	/* 
+ 	 * Remove images from the stage before loading new ones, 
+ 	 * this avoids a memory leak by freeing the textures 
+ 	 * and clears the stage so when there are less than
+ 	 * GRID_SIZE images to view you don't get the previous 
+ 	 * images still vivisble
+ 	 */
+	clutter_group_remove_all(CLUTTER_GROUP (stage));
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		if (r == ROW_SIZE || i == nfiles)
                         break;
@@ -84,6 +92,7 @@ load_images(ClutterActor *stage, int direction)
 		pixbuf = gdk_pixbuf_new_from_file_at_size(files[i],  
 								300, 300, NULL);
 		img = clutter_texture_new_from_pixbuf(pixbuf);
+		/* Free the pixbuf to avoid a memory leak */
 		g_object_unref(pixbuf);
 		clutter_actor_set_position(img, x, y);
 		clutter_group_add(CLUTTER_GROUP(stage), img);

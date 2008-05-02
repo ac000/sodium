@@ -81,6 +81,7 @@ load_images(ClutterActor *stage, int direction)
 		pixbuf = gdk_pixbuf_new_from_file_at_size(files[i],  
 								300, 300, NULL);
 		img = clutter_texture_new_from_pixbuf(pixbuf);
+		g_object_unref(pixbuf);
 		clutter_actor_set_position(img, x, y);
 		clutter_group_add(CLUTTER_GROUP(stage), img);
 		clutter_actor_show(img);

@@ -77,6 +77,9 @@ load_images(ClutterActor *stage, int direction)
 	}
 
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
+		if (r == ROW_SIZE || i == nfiles)
+                        break;
+
 		printf("Loading image: %s\n", files[i]);
 		pixbuf = gdk_pixbuf_new_from_file_at_size(files[i],  
 								300, 300, NULL);
@@ -98,9 +101,6 @@ load_images(ClutterActor *stage, int direction)
 		array_pos++;
 		/*printf("c = %d, r = %d, x = %d, y = %d, array_pos = %d\n", 
 						c, r, x, y, array_pos);*/
-
-		if (r == ROW_SIZE)
-			break;
         }
 }
 

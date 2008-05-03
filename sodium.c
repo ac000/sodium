@@ -171,7 +171,7 @@ main(int argc, char *argv[])
 	stage = clutter_stage_get_default();
 	clutter_actor_set_size(stage, 900, 900);
 	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
-	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
+	clutter_stage_set_title(CLUTTER_STAGE (stage), stage_title);
 	/*g_object_set(stage, "cursor-visible", FALSE, NULL);*/
 	clutter_actor_show_all(stage);
 

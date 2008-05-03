@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
-#include <glib/gstdio.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
@@ -37,7 +36,7 @@ is_supported_img(const char *name)
 	return FALSE;
 }
 
-/* Read in the image file names into a linked-list */
+/* Read in the image file names into an array */
 static void
 process_directory(const gchar *name)
 {
@@ -123,28 +122,33 @@ load_images(ClutterActor *stage, int direction)
         }
 }
 
-/* Process key events */
+/* Process keyboard/mouse events */
 static void
-key_release_cb(ClutterActor *stage, ClutterKeyEvent *kev, gpointer user_data)
+input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 {
-	printf("Got key event: %d\n", clutter_key_event_symbol(kev));
-
-	switch (clutter_key_event_symbol(kev)) {
-	case CLUTTER_Down:
-		load_images(stage, FWD);
-		break;
-	case CLUTTER_Up:
-		load_images(stage, BWD);
-		break;
-	case CLUTTER_f:
-		if (fullscreen == 0) {
-			fullscreen = 1;
-		} else {
-			fullscreen = 0;
+	switch (event->type) {
+	case CLUTTER_KEY_PRESS: {
+			guint sym = clutter_key_event_symbol((ClutterKeyEvent*)
+								 event);
+		switch (sym) {
+		case CLUTTER_Up:
+			load_images(stage, BWD);
+			break;
+		case CLUTTER_Down:
+			load_images(stage, FWD);
+			break;
+		case CLUTTER_q:
+			clutter_main_quit();
+			break;
 		}
-	case CLUTTER_Escape:
-	case CLUTTER_q:
-		clutter_main_quit();
+	}
+	case CLUTTER_SCROLL:
+		if (event->scroll.direction == CLUTTER_SCROLL_UP)
+			load_images(stage, BWD);
+		else if (event->scroll.direction == CLUTTER_SCROLL_DOWN)
+			load_images(stage, FWD);
+		break;
+	default:
 		break;
 	}
 }
@@ -167,14 +171,15 @@ main(int argc, char *argv[])
 	clutter_actor_set_size(stage, 900, 900);
 	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
+	g_object_set(stage, "cursor-visible", FALSE, NULL);
 	clutter_actor_show_all(stage);
 
 	process_directory(argv[1]);
 	load_images(stage, FWD);
-
-	g_signal_connect(stage, "key-release-event", 
-				G_CALLBACK (key_release_cb), NULL);
 	
+	/* Handle keyboard/mouse events */
+	g_signal_connect(stage, "event", G_CALLBACK (input_events_cb), NULL);
+
 	clutter_main();
 
 	return EXIT_SUCCESS;

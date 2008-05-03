@@ -69,8 +69,18 @@ load_images(ClutterActor *stage, int direction)
 	if (direction == BWD) {
 		if (array_pos < (GRID_SIZE * 2))
 			return;
-		else
-			array_pos -= (GRID_SIZE * 2);
+		else {
+			/*
+ 			 * If we are at the end of the images and there is not
+ 			 * a full grid of images to display, we need to only 
+ 			 * go back GRID_SIZE + the last number of images.
+ 			 * Otherwise we go back 2 * GRID_SIZE of images.
+ 			 */ 	 
+			if (array_pos == nfiles && nfiles % GRID_SIZE != 0)
+				array_pos -= GRID_SIZE + (nfiles % GRID_SIZE);
+			else
+				array_pos -= GRID_SIZE * 2;
+		}
 	} else {
 		if (array_pos >= nfiles)
 			return;

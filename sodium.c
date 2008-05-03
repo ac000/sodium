@@ -137,6 +137,7 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		case CLUTTER_Down:
 			load_images(stage, FWD);
 			break;
+		case CLUUTER_Escape:
 		case CLUTTER_q:
 			clutter_main_quit();
 			break;
@@ -171,7 +172,7 @@ main(int argc, char *argv[])
 	clutter_actor_set_size(stage, 900, 900);
 	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
-	g_object_set(stage, "cursor-visible", FALSE, NULL);
+	/*g_object_set(stage, "cursor-visible", FALSE, NULL);*/
 	clutter_actor_show_all(stage);
 
 	process_directory(argv[1]);

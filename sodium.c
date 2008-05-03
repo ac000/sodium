@@ -137,7 +137,7 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		case CLUTTER_Down:
 			load_images(stage, FWD);
 			break;
-		case CLUUTER_Escape:
+		case CLUTTER_Escape:
 		case CLUTTER_q:
 			clutter_main_quit();
 			break;

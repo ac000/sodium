@@ -16,6 +16,9 @@
 /* Direction of scrolling */
 #define FWD		0
 #define BWD		1
+/* Home / END */
+#define HME		2
+#define END		3
 
 
 /* Array to hold image filenames */
@@ -62,13 +65,14 @@ load_images(ClutterActor *stage, int direction)
 {
         ClutterActor *img;
         GdkPixbuf *pixbuf;
+	
 	int i; 
-        int x = 0, y = 0, c = 0, r = 0;
+	int x = 0, y = 0, c = 0, r = 0;
 
 	if (direction == BWD) {
-		if (array_pos < (GRID_SIZE * 2))
+		if (array_pos < (GRID_SIZE * 2)) {
 			return;
-		else {
+		} else {
 			/*
  			 * If we are at the end of the images and there is not
  			 * a full grid of images to display, we need to only 
@@ -80,9 +84,18 @@ load_images(ClutterActor *stage, int direction)
 			else
 				array_pos -= GRID_SIZE * 2;
 		}
-	} else {
+	} else if (direction == FWD) {
 		if (array_pos >= nfiles)
 			return;
+	} else if (direction == HME) {
+		/* Goto begining of images */
+		array_pos = 0;
+	} else if (direction == END) {
+		/* Goto end of images */
+		if (nfiles % GRID_SIZE != 0)
+			array_pos = nfiles - (nfiles % GRID_SIZE);
+		else
+			array_pos = nfiles - GRID_SIZE;
 	}
 	
 	/* 
@@ -113,8 +126,9 @@ load_images(ClutterActor *stage, int direction)
 			y += 300;
 			c = 0;
 			r += 1;
-		} else
+		} else {
 			x += 300;
+		}
 
 		array_pos++;
 		/*printf("c = %d, r = %d, x = %d, y = %d, array_pos = %d\n", 
@@ -136,6 +150,12 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 			break;
 		case CLUTTER_Down:
 			load_images(stage, FWD);
+			break;
+		case CLUTTER_Home:
+			load_images(stage, HME);
+			break;
+		case CLUTTER_End:
+			load_images(stage, END);
 			break;
 		case CLUTTER_Escape:
 		case CLUTTER_q:

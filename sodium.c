@@ -184,7 +184,7 @@ main(int argc, char *argv[])
 	const gchar *stage_title = { "sodium - DVD Cover Art Viewer" };
 
 	if (argc != 2) {
-      		printf("\n    usage: %s image_directory\n\n", argv[0]);
+      		printf("\n    Usage: sodium image_directory\n\n");
 		exit(1);
 	}
 

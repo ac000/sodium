@@ -1,0 +1,14 @@
+sodium is designed to be a dvd cover art viewer. It loads a 3 x 3 grid of 
+images each at 300 x 300 pixels.
+
+
+Keys
+
+Escape, q			Quit
+Page Up, Up Arrow		Page Up
+Page Down, Down	Arrow		Page Down
+Home				First Page
+End				Last Page
+
+You can also scroll with the mouse wheel.
+

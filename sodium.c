@@ -145,9 +145,11 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 			guint sym = clutter_key_event_symbol((ClutterKeyEvent*)
 								 event);
 		switch (sym) {
+		case CLUTTER_Page_Up:
 		case CLUTTER_Up:
 			load_images(stage, BWD);
 			break;
+		case CLUTTER_Page_Down:
 		case CLUTTER_Down:
 			load_images(stage, FWD);
 			break;

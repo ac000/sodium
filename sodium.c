@@ -70,7 +70,7 @@ load_images(ClutterActor *stage, int direction)
 	int x = 0, y = 0, c = 0, r = 0;
 
 	if (direction == BWD) {
-		if (array_pos < (GRID_SIZE * 2)) {
+		if (array_pos <= GRID_SIZE) {
 			return;
 		} else {
 			/*

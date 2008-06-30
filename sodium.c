@@ -140,6 +140,8 @@ load_images(ClutterActor *stage, int direction)
 static void
 input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 {
+	static int cur_toggle = 0;
+
 	switch (event->type) {
 	case CLUTTER_KEY_PRESS: {
 			guint sym = clutter_key_event_symbol((ClutterKeyEvent*)
@@ -159,7 +161,20 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		case CLUTTER_End:
 			load_images(stage, END);
 			break;
+		case CLUTTER_C:
+		case CLUTTER_c:
+			if (!cur_toggle) {
+				g_object_set(stage, "cursor-visible", TRUE, 
+									NULL);
+				cur_toggle = 1;
+			} else {
+				g_object_set(stage, "cursor-visible", FALSE,
+									NULL);
+				cur_toggle = 0;
+			}
+			break;	
 		case CLUTTER_Escape:
+		case CLUTTER_Q:
 		case CLUTTER_q:
 			clutter_main_quit();
 			break;
@@ -194,7 +209,7 @@ main(int argc, char *argv[])
 	clutter_actor_set_size(stage, 900, 900);
 	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE (stage), stage_title);
-	/*g_object_set(stage, "cursor-visible", FALSE, NULL);*/
+	g_object_set(stage, "cursor-visible", FALSE, NULL);
 	clutter_actor_show_all(stage);
 
 	process_directory(argv[1]);

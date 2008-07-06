@@ -4,12 +4,12 @@ images each at 300 x 300 pixels.
 
 Keys
 
-Escape, Q, q			Quit
+Escape, q			Quit
 Page Up, Up Arrow		Page Up
 Page Down, Down	Arrow		Page Down
 Home				First Page
 End				Last Page
-C, c				Toggle cursor on/off
+c				Toggle cursor on/off
 
 You can also scroll with the mouse wheel.
 

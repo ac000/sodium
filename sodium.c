@@ -161,7 +161,6 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		case CLUTTER_End:
 			load_images(stage, END);
 			break;
-		case CLUTTER_C:
 		case CLUTTER_c:
 			if (!cur_toggle) {
 				g_object_set(stage, "cursor-visible", TRUE, 
@@ -174,7 +173,6 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 			}
 			break;	
 		case CLUTTER_Escape:
-		case CLUTTER_Q:
 		case CLUTTER_q:
 			clutter_main_quit();
 			break;

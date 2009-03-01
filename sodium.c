@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
@@ -64,7 +65,6 @@ static void
 load_images(ClutterActor *stage, int direction)
 {
         ClutterActor *img;
-        GdkPixbuf *pixbuf;
 	
 	int i; 
 	int x = 0, y = 0, c = 0, r = 0;
@@ -111,11 +111,8 @@ load_images(ClutterActor *stage, int direction)
                         break;
 
 		printf("Loading image: %s\n", files[i]);
-		pixbuf = gdk_pixbuf_new_from_file_at_size(files[i],  
-								300, 300, NULL);
-		img = clutter_texture_new_from_pixbuf(pixbuf);
-		/* Free the pixbuf to avoid a memory leak */
-		g_object_unref(pixbuf);
+		img = clutter_texture_new_from_file(files[i], NULL);
+		clutter_actor_set_size(img, 300, 300);
 		clutter_actor_set_position(img, x, y);
 		clutter_group_add(CLUTTER_GROUP(stage), img);
 		clutter_actor_show(img);

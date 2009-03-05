@@ -9,6 +9,8 @@
 #include <dirent.h>
 #include <string.h>
 
+#include "sodium.h"
+
 /* Image grid dimentions */
 #define GRID_SIZE	9
 #define ROW_SIZE	3
@@ -26,6 +28,7 @@
 char files[500][255];
 int array_pos = 0;
 int nfiles = 0;
+int loaded_images = 0;
 int fullscreen = 0;
 
 /* Check to see if the file is a valid image */
@@ -98,6 +101,7 @@ load_images(ClutterActor *stage, int direction)
 			array_pos = nfiles - GRID_SIZE;
 	}
 	
+	loaded_images = 0;
 	/* 
  	 * Remove images from the stage before loading new ones, 
  	 * this avoids a memory leak by freeing the textures 
@@ -117,6 +121,14 @@ load_images(ClutterActor *stage, int direction)
 		clutter_group_add(CLUTTER_GROUP(stage), img);
 		clutter_actor_show(img);
 
+		/* Allow the actor to emit events. */
+		clutter_actor_set_reactive(img, TRUE);
+
+		/* Connect signal handlers for events: */
+        	g_signal_connect(img, "button-press-event",
+                        		G_CALLBACK(input_events_cb), NULL);
+        	g_signal_connect(img, "button-release-event",
+                        		G_CALLBACK(input_events_cb), NULL);
 		c += 1;
 		if (c == COL_SIZE) {
 			x = 0;
@@ -128,6 +140,7 @@ load_images(ClutterActor *stage, int direction)
 		}
 
 		array_pos++;
+		loaded_images++;
 		/*printf("c = %d, r = %d, x = %d, y = %d, array_pos = %d\n", 
 						c, r, x, y, array_pos);*/
         }
@@ -137,7 +150,9 @@ load_images(ClutterActor *stage, int direction)
 static void
 input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 {
-	static int cur_toggle = 0;
+	static int cur_toggle = 1;
+	int x = 0;
+	int y = 0;
 
 	switch (event->type) {
 	case CLUTTER_KEY_PRESS: {
@@ -181,11 +196,61 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		else if (event->scroll.direction == CLUTTER_SCROLL_DOWN)
 			load_images(stage, FWD);
 		break;
+	case CLUTTER_BUTTON_PRESS:
+		clutter_event_get_coords(event, &x, &y);
+		printf("Clicked image at (%d, %d)\n", x, y);
+		play_video(x, y);
+		break;
 	default:
 		break;
 	}
 }
 
+static void
+play_video(int x, int y)
+{
+	int img_no = 0;
+
+	printf("array_pos = %d, loaded_images = %d\n", array_pos, 
+								loaded_images);
+	if (x >= 0 && x <= 300 && y >= 0 && y <= 300) {
+		img_no = 1;
+		printf("Image 1\n");
+	} else if (x >= 301 && x <= 600 && y >= 0 && y <= 300) {
+		img_no = 2;
+		printf("Image 2\n");
+	} else if (x >= 601 && x <= 900 && y >= 0 && y <= 300) {
+		img_no = 3;
+		printf("Image 3\n");
+	} else if (x >= 0 && x <= 300 && y >= 301 && y <= 600) {
+		img_no = 4;
+		printf("Image 4\n");
+	} else if (x >= 301 && x <= 600 && y >= 301 && y <= 600) {
+		img_no = 5;
+		printf("Image 5\n");
+	} else if (x >= 601 && x <= 900 && y >= 301 && y <= 600) {
+		img_no = 6;
+		printf("Image 6\n");
+	} else if (x >= 0 && x <= 300 && y >= 601 && y <= 900) {
+		img_no = 7;
+		printf("Image 7\n");
+	} else if (x >= 301 && x <= 600 && y >= 601 && y <= 900) {
+		img_no = 8;
+		printf("Image 8\n");
+	} else if (x >= 601 && x <= 900 && y >= 601 && y <= 900) {
+		img_no = 9;
+		printf("Image 9\n");
+	} 
+
+	if (img_no <= loaded_images) {
+		printf("Playing video (%d)\n", img_no);
+		printf("Playing (%s)\n", 
+				files[array_pos - loaded_images + img_no - 1]);
+	} else {
+		printf("No video at (%d)\n", img_no);
+	}
+}
+ 
 int
 main(int argc, char *argv[])
 {

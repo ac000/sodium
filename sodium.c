@@ -26,6 +26,8 @@
 #define END		3
 
 
+/* label to display when an image is clicked that has no associated video */
+ClutterActor *label;
 /* Array to hold image filenames */
 char files[500][255];
 int array_pos = 0;
@@ -113,7 +115,7 @@ load_images(ClutterActor *stage, int direction)
  	 * GRID_SIZE images to view you don't get the previous 
  	 * images still vivisble
  	 */
-	clutter_group_remove_all(CLUTTER_GROUP (stage));
+	clutter_group_remove_all(CLUTTER_GROUP(stage));
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		if (r == ROW_SIZE || i == nfiles)
                         break;
@@ -122,17 +124,12 @@ load_images(ClutterActor *stage, int direction)
 		img = clutter_texture_new_from_file(files[i], NULL);
 		clutter_actor_set_size(img, 300, 300);
 		clutter_actor_set_position(img, x, y);
-		clutter_group_add(CLUTTER_GROUP(stage), img);
+		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
 		clutter_actor_show(img);
 
 		/* Allow the actor to emit events. */
 		clutter_actor_set_reactive(img, TRUE);
 
-		/* Connect signal handlers for events: */
-        	g_signal_connect(img, "button-press-event",
-                        		G_CALLBACK(input_events_cb), NULL);
-        	g_signal_connect(img, "button-release-event",
-                        		G_CALLBACK(input_events_cb), NULL);
 		c += 1;
 		if (c == COL_SIZE) {
 			x = 0;
@@ -202,6 +199,9 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 			load_images(stage, FWD);
 		break;
 	case CLUTTER_BUTTON_PRESS:
+		clutter_actor_hide(label);
+		break;
+	case CLUTTER_BUTTON_RELEASE:
 		clutter_event_get_coords(event, &x, &y);
 		printf("Clicked image at (%d, %d)\n", x, y);
 		which_image(stage, x, y);
@@ -211,6 +211,7 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 	}
 }
 
+/* Determine which image on the grid was clicked. */
 static void
 which_image(ClutterActor *stage, int x, int y)
 {
@@ -262,6 +263,7 @@ which_image(ClutterActor *stage, int x, int y)
 	}
 }
  
+/* Lookup the clicked image in the .movie-list file */
 static void
 lookup_video(ClutterActor *stage, char *actor)
 {
@@ -289,10 +291,11 @@ lookup_video(ClutterActor *stage, char *actor)
 
 	if (!found) {
 		printf("No movie for (%s)\n", actor);
-		/*no_video_notice(stage);*/
+		no_video_notice(stage);
 	}
 }
 
+/* fork/exec the movie */
 static void
 play_video(char *cmd, char *args, char *movie)
 {
@@ -315,16 +318,16 @@ play_video(char *cmd, char *args, char *movie)
 	}		
 }
 
+/* Display a "No Video" message for images with no video yet */
 static void
 no_video_notice(ClutterActor *stage)
 {
-	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0x99 };
+	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
-	ClutterActor *label = 
-		clutter_label_new_full("Sans 12", "Some Text", &actor_color);
+	label = clutter_label_new_full("Sans 36", "No Video", &actor_color);
 	clutter_actor_set_size(label, 500, 500);
-	clutter_actor_set_position(label, 20, 150);
-	clutter_group_add(CLUTTER_GROUP(stage), label);
+	clutter_actor_set_position(label, 342, 400);
+	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);
 	clutter_actor_show(label);
 }
 
@@ -344,16 +347,16 @@ main(int argc, char *argv[])
 
 	stage = clutter_stage_get_default();
 	clutter_actor_set_size(stage, 900, 900);
-	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
-	clutter_stage_set_title(CLUTTER_STAGE (stage), stage_title);
+	clutter_stage_set_color(CLUTTER_STAGE(stage), &stage_clr);
+	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	g_object_set(stage, "cursor-visible", TRUE, NULL);
-	clutter_actor_show_all(stage);
+	clutter_actor_show(stage);
 
 	process_directory(argv[1]);
 	load_images(stage, FWD);
 	
 	/* Handle keyboard/mouse events */
-	g_signal_connect(stage, "event", G_CALLBACK (input_events_cb), NULL);
+	g_signal_connect(stage, "event", G_CALLBACK(input_events_cb), NULL);
 
 	clutter_main();
 

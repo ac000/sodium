@@ -28,6 +28,7 @@
 char files[500][255];
 int array_pos = 0;
 int nfiles = 0;
+/* How many images are currently shown on screen */
 int loaded_images = 0;
 int fullscreen = 0;
 
@@ -282,5 +283,4 @@ main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-
 

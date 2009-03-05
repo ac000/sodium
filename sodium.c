@@ -6,6 +6,8 @@
 #include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <string.h>
 
@@ -30,7 +32,6 @@ int array_pos = 0;
 int nfiles = 0;
 /* How many images are currently shown on screen */
 int loaded_images = 0;
-int fullscreen = 0;
 
 /* Check to see if the file is a valid image */
 static gboolean
@@ -102,7 +103,9 @@ load_images(ClutterActor *stage, int direction)
 			array_pos = nfiles - GRID_SIZE;
 	}
 	
+	/* How many images are on screen */	
 	loaded_images = 0;
+
 	/* 
  	 * Remove images from the stage before loading new ones, 
  	 * this avoids a memory leak by freeing the textures 
@@ -151,6 +154,7 @@ load_images(ClutterActor *stage, int direction)
 static void
 input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 {
+	/* Cursor is defaulted to visible */
 	static int cur_toggle = 1;
 	int x = 0;
 	int y = 0;
@@ -200,7 +204,7 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 	case CLUTTER_BUTTON_PRESS:
 		clutter_event_get_coords(event, &x, &y);
 		printf("Clicked image at (%d, %d)\n", x, y);
-		play_video(x, y);
+		which_image(stage, x, y);
 		break;
 	default:
 		break;
@@ -208,12 +212,19 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 }
 
 static void
-play_video(int x, int y)
+which_image(ClutterActor *stage, int x, int y)
 {
+	char *image;
 	int img_no = 0;
 
 	printf("array_pos = %d, loaded_images = %d\n", array_pos, 
 								loaded_images);
+
+	/* 
+ 	 * Images are layed out in a 3 x 3 grid from left to right
+ 	 * top to bottom. I.e image 1 is the top left image and image 9
+ 	 * is the bottom right image.
+ 	 */
 	if (x >= 0 && x <= 300 && y >= 0 && y <= 300) {
 		img_no = 1;
 		printf("Image 1\n");
@@ -244,20 +255,85 @@ play_video(int x, int y)
 	} 
 
 	if (img_no <= loaded_images) {
-		printf("Playing video (%d)\n", img_no);
-		printf("Playing (%s)\n", 
-				files[array_pos - loaded_images + img_no - 1]);
+		image = files[array_pos - loaded_images + img_no - 1];
+		lookup_video(stage, image);
 	} else {
-		printf("No video at (%d)\n", img_no);
+		printf("No image at (%d)\n", img_no);
 	}
 }
  
+static void
+lookup_video(ClutterActor *stage, char *actor)
+{
+	char string[255];
+	char image[120];
+	char movie[120];
+	char cmd[20];
+	char args[20];
+	int found = 0;
+
+	static FILE *fp;
+
+	fp = fopen("/home/andrew/pics/dvd_covers/alt/.movie-list", "r");
+	
+	while (fgets(string, 254, fp)) {
+		sscanf(string, "%119[^:]:%119[^:]:%19[^:]:%19s",
+						image, movie, cmd, args);
+		if (strcmp(actor, image) == 0) {
+			fclose(fp);
+			play_video(cmd, args, movie);
+			found = 1;
+			break;
+		}	
+	}
+
+	if (!found) {
+		printf("No movie for (%s)\n", actor);
+		/*no_video_notice(stage);*/
+	}
+}
+
+static void
+play_video(char *cmd, char *args, char *movie)
+{
+	char movie_path[255] = "/media/sata_2/videos/dvds/";
+	pid_t pid;
+	int status;
+	
+	strncat(movie_path, movie, 150);
+	
+	pid = fork();
+
+	if (pid > 0) {
+		/* parent */
+		waitpid(-1, &status, 0);
+	} else if (pid == 0) {
+		/* child */
+		printf("Playing: (%s)\n", movie_path);
+		printf("execing: %s %s %s\n", cmd, args, movie_path);
+		execlp(cmd, cmd, args, movie_path, NULL);
+	}		
+}
+
+static void
+no_video_notice(ClutterActor *stage)
+{
+	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0x99 };
+
+	ClutterActor *label = 
+		clutter_label_new_full("Sans 12", "Some Text", &actor_color);
+	clutter_actor_set_size(label, 500, 500);
+	clutter_actor_set_position(label, 20, 150);
+	clutter_group_add(CLUTTER_GROUP(stage), label);
+	clutter_actor_show(label);
+}
+
 int
 main(int argc, char *argv[])
 {
 	ClutterActor *stage;
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
-	const gchar *stage_title = { "sodium - DVD Cover Art Viewer" };
+	const gchar *stage_title = { "sodium - DVD Cover Art Viewer / Player" };
 
 	if (argc != 2) {
       		printf("\n    Usage: sodium image_directory\n\n");
@@ -270,7 +346,7 @@ main(int argc, char *argv[])
 	clutter_actor_set_size(stage, 900, 900);
 	clutter_stage_set_color(CLUTTER_STAGE (stage), &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE (stage), stage_title);
-	g_object_set(stage, "cursor-visible", FALSE, NULL);
+	g_object_set(stage, "cursor-visible", TRUE, NULL);
 	clutter_actor_show_all(stage);
 
 	process_directory(argv[1]);

@@ -45,6 +45,10 @@ int array_pos = 0;
 int nfiles = 0;
 /* How many images are currently shown on screen */
 int loaded_images = 0;
+/* Location of images passed in as argv[1] */
+char image_path[255];
+/* Path to .movie-list mapping file */
+char movie_list[255];
 
 /* Check to see if the file is a valid image */
 static gboolean
@@ -288,10 +292,14 @@ lookup_video(ClutterActor *stage, char *actor)
 
 	static FILE *fp;
 
-	fp = fopen("/home/andrew/pics/dvd_covers/alt/.movie-list", "r");
+	printf("Opening movie list: (%s)\n", movie_list);
+	if (! (fp = fopen(movie_list, "r"))) {
+		printf("Can't open movie list: (%s)\n", movie_list);
+		return;
+	}
 	
 	while (fgets(string, 254, fp)) {
-		sscanf(string, "%119[^:]:%119[^:]:%19[^:]:%19s",
+		sscanf(string, "%119[^|]|%119[^|]|%19[^|]|%19s",
 						image, movie, cmd, args);
 		if (strcmp(actor, image) == 0) {
 			fclose(fp);
@@ -355,6 +363,11 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
+	strncpy(image_path, argv[1], 240);
+
+	strcpy(movie_list, image_path);
+	strcat(movie_list, "/.movie-list");
+
 	clutter_init(&argc, &argv);
 
 	stage = clutter_stage_get_default();
@@ -363,8 +376,8 @@ main(int argc, char *argv[])
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	g_object_set(stage, "cursor-visible", TRUE, NULL);
 	clutter_actor_show(stage);
-
-	process_directory(argv[1]);
+	
+	process_directory(image_path);
 	load_images(stage, FWD);
 	
 	/* Handle keyboard/mouse events */

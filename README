@@ -1,9 +1,17 @@
 sodium is designed to be a dvd cover art viewer and movie launcher. 
 
-Basic usage is: sodium /path/to/images
+Basic usage is: sodium /path/to/images size [/path/to/videos]
 
-It loads a 3 x 3 grid of images each at 300 x 300 pixels. You can navigate via
-the following:
+size is the size of the window to display in pixels. It should be at least 
+300 and be a multiple of 300, e.g 300, 600, 900 etc
+
+You can optionally specify a path to videos that cna be played when clicking
+on an image. See below.
+
+It loads a 3 x 3 grid of images each at size / 3 squared pixels. E.g if you
+specified a size of 900 the images would be 300x300 each.
+
+You can navigate via the following:
 
 	Keys
 
@@ -19,19 +27,19 @@ the following:
 You can also click on an image to have the video for that played (if it's 
 available). Currently this is managed through a mapping file that maps image 
 names to video names and the player to use and the arguments to pass to the
-player.
+player. To use this pass the optional /path/to/videos argument that is the 
+top level directory where the videos are held. The videos listed in the 
+mapping file should be specified relative to this directory.
 
-It takes the form of a pipe (|) seperated fields flat file, e.g
+It takes the form of a pipe (|) seperated fields flat file, e.g one entry 
+would look like:
 
 	taken.jpg|action/Taken.mkv|xine|-f
 
 taken.jpg 		is the name of image shown in sodium
-action/Taken.mkv 	is the path to the video
+action/Taken.mkv 	is the relative path to the video
 xine			is the command to lauch to play the video
 -f			is the arguments to pass to the video player
-
-Currently the video location is hard coded to /media/sata_2/videos/dvds/ and 
-action/Taken.mkv is relative to that.
 
 The mapping file should be called .movie-list and placed in the same location
 as the images being displayed.

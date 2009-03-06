@@ -18,4 +18,5 @@ static void which_image(ClutterActor *stage, int x, int y);
 static void lookup_video(ClutterActor *stage, char *actor);
 static void play_video(char *cmd, char *args, char *movie);
 static void no_video_notice(ClutterActor *stage);
-
+static void set_dimensions(char *size);
+static void display_usage();

@@ -24,6 +24,7 @@
 
 #include "sodium.h"
 
+
 /* Image grid dimentions */
 #define GRID_SIZE	9
 #define ROW_SIZE	3
@@ -39,16 +40,16 @@
 
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
-/* Array to hold image filenames */
-char files[500][255];
-int array_pos = 0;
-int nfiles = 0;
-/* How many images are currently shown on screen */
-int loaded_images = 0;
-/* Location of images passed in as argv[1] */
-char image_path[255];
-/* Path to .movie-list mapping file */
-char movie_list[255];
+char files[500][255];	/* Array to hold image filenames */
+int array_pos = 0; 	/* Current position in file list array */
+int nfiles = 0;		/* Number of files loaded into file list array */
+int loaded_images = 0;	/* How many images are currently shown on screen */
+char image_path[255]; 	/* Location of images passed in as argv[1] */
+char movie_list[255]; 	/* Path to .movie-list mapping file */
+char movie_path[255]; 	/* Path to top level directory containing the videos */
+int window_size; 	/* Size of the window */
+int image_size; 	/* Size of the image */
+
 
 /* Check to see if the file is a valid image */
 static gboolean
@@ -138,7 +139,7 @@ load_images(ClutterActor *stage, int direction)
 
 		printf("Loading image: %s\n", files[i]);
 		img = clutter_texture_new_from_file(files[i], NULL);
-		clutter_actor_set_size(img, 300, 300);
+		clutter_actor_set_size(img, image_size, image_size);
 		clutter_actor_set_position(img, x, y);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
 		clutter_actor_show(img);
@@ -149,11 +150,11 @@ load_images(ClutterActor *stage, int direction)
 		c += 1;
 		if (c == COL_SIZE) {
 			x = 0;
-			y += 300;
+			y += image_size;
 			c = 0;
 			r += 1;
 		} else {
-			x += 300;
+			x += image_size;
 		}
 
 		array_pos++;
@@ -242,31 +243,39 @@ which_image(ClutterActor *stage, int x, int y)
  	 * top to bottom. I.e image 1 is the top left image and image 9
  	 * is the bottom right image.
  	 */
-	if (x >= 0 && x <= 300 && y >= 0 && y <= 300) {
+	if (x >= 0 && x <= image_size && y >= 0 && y <= image_size) {
 		img_no = 1;
 		printf("Image 1\n");
-	} else if (x >= 301 && x <= 600 && y >= 0 && y <= 300) {
+	} else if (x >= image_size + 1 && x <= image_size * 2 && 
+						y >= 0 && y <= image_size) {
 		img_no = 2;
 		printf("Image 2\n");
-	} else if (x >= 601 && x <= 900 && y >= 0 && y <= 300) {
+	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 && 
+						y >= 0 && y <= image_size) {
 		img_no = 3;
 		printf("Image 3\n");
-	} else if (x >= 0 && x <= 300 && y >= 301 && y <= 600) {
+	} else if (x >= 0 && x <= image_size && y >= image_size + 1 && 
+							y <= image_size * 2) {
 		img_no = 4;
 		printf("Image 4\n");
-	} else if (x >= 301 && x <= 600 && y >= 301 && y <= 600) {
+	} else if (x >= image_size + 1 && x <= image_size * 2 && 
+				y >= image_size + 1 && y <= image_size * 2) {
 		img_no = 5;
 		printf("Image 5\n");
-	} else if (x >= 601 && x <= 900 && y >= 301 && y <= 600) {
+	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 && 
+				y >= image_size + 1 && y <= image_size * 2) {
 		img_no = 6;
 		printf("Image 6\n");
-	} else if (x >= 0 && x <= 300 && y >= 601 && y <= 900) {
+	} else if (x >= 0 && x <= image_size && y >= image_size * 2 + 1 && 
+							y <= image_size * 3) {
 		img_no = 7;
 		printf("Image 7\n");
-	} else if (x >= 301 && x <= 600 && y >= 601 && y <= 900) {
+	} else if (x >= image_size + 1 && x <= image_size * 2 && 
+			y >= image_size * 2 + 1 && y <= image_size * 3) {
 		img_no = 8;
 		printf("Image 8\n");
-	} else if (x >= 601 && x <= 900 && y >= 601 && y <= 900) {
+	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 && 
+			y >= image_size * 2 + 1 && y <= image_size * 3) {
 		img_no = 9;
 		printf("Image 9\n");
 	} 
@@ -316,11 +325,10 @@ lookup_video(ClutterActor *stage, char *actor)
 static void
 play_video(char *cmd, char *args, char *movie)
 {
-	char movie_path[255] = "/media/sata_2/videos/dvds/";
 	pid_t pid;
 	int status;
 	
-	strncat(movie_path, movie, 150);
+	strncat(movie_path, movie, 120);
 	
 	pid = fork();
 
@@ -348,6 +356,37 @@ no_video_notice(ClutterActor *stage)
 	clutter_actor_show(label);
 }
 
+/* Setup the window and image size dimensions */
+static void
+set_dimensions(char *size)
+{
+	window_size = atoi(size);
+		
+	if (window_size < 300 || window_size % 300 != 0) 
+		display_usage();
+
+	image_size = window_size / ROW_SIZE;
+
+	printf("Setting window size to = (%dx%d)\n", window_size, window_size);
+	printf("Setting image size to  = (%dx%d)\n", image_size, image_size); 
+}
+
+/* Display a help/usage summary */
+static void
+display_usage()
+{
+	printf("\nUsage: sodium image_directory size [video_directory]\n\n");
+	printf("Where image_directory is the path to the location of the ");
+	printf("images.\n\n");
+	printf("size is the size of the window to display in pixels. It ");
+	printf("must be at least 300 and also be a multiple of 300.\n\n");
+	printf("video_directory is an optional directory where videos are ");
+	printf("stored. Videos listed in the .movie-list file should be ");
+	printf("given relative to this path.\n");
+	
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -355,10 +394,16 @@ main(int argc, char *argv[])
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
 	const gchar *stage_title = { "sodium - DVD Cover Art Viewer / Player" };
 
-	if (argc != 2) {
-      		printf("\n    Usage: sodium image_directory\n\n");
-		exit(1);
-	}
+	if (argc < 3) 
+		display_usage();
+
+	set_dimensions(argv[2]);
+
+	/* Setup the video path if supplied */
+	if (argc == 4) {
+		strncpy(movie_path, argv[3], 120);
+		strcat(movie_path, "/");
+	} 
 
 	strncpy(image_path, argv[1], 240);
 
@@ -368,7 +413,7 @@ main(int argc, char *argv[])
 	clutter_init(&argc, &argv);
 
 	stage = clutter_stage_get_default();
-	clutter_actor_set_size(stage, 900, 900);
+	clutter_actor_set_size(stage, window_size, window_size);
 	clutter_stage_set_color(CLUTTER_STAGE(stage), &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	g_object_set(stage, "cursor-visible", TRUE, NULL);

@@ -1,3 +1,14 @@
+/* 
+ * sodium.h
+ *
+ * Function definitions for sodium.c
+ *
+ * Copyright (C) 2008-2009 Andrew Clayton
+ *
+ * License: GPLv2. See COPYING
+ *
+ */
+
 static gboolean is_supported_img(const char *name);
 static void process_directory(const gchar *name);
 static void load_images(ClutterActor *stage, int direction);

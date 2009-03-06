@@ -1,15 +1,41 @@
-sodium is designed to be a dvd cover art viewer. It loads a 3 x 3 grid of 
-images each at 300 x 300 pixels.
+sodium is designed to be a dvd cover art viewer and movie launcher. 
+
+Basic usage is: sodium /path/to/images
+
+It loads a 3 x 3 grid of images each at 300 x 300 pixels. You can navigate via
+the following:
+
+	Keys
+
+	Escape, q			Quit
+	Page Up, Up Arrow		Page Up
+	Page Down, Down	Arrow		Page Down
+	Home				First Page
+	End				Last Page
+	c				Toggle cursor on/off
+
+	You can also scroll with the mouse wheel.
+
+You can also click on an image to have the video for that played (if it's 
+available). Currently this is managed through a mapping file that maps image 
+names to video names and the player to use and the arguments to pass to the
+player.
+
+It takes the form a colon (:) seperated fields flat file, e.g
+
+	taken.jpg:action/Taken.mkv:xine:-f
+
+taken.jpg 		is the name of image shown in sodium
+action/Taken.mkv 	is the path to the video
+xine			is the command to lauch to play the video
+-f			is the arguments to pass to the video player
+
+Currently the video location is hard coded to /media/sata_2/videos/dvds/ and 
+action/Taken.mkv is relative to that.
+
+The mapping file should be called .movie-list and placed in the same location
+as the images being displayed.
 
 
-Keys
-
-Escape, q			Quit
-Page Up, Up Arrow		Page Up
-Page Down, Down	Arrow		Page Down
-Home				First Page
-End				Last Page
-c				Toggle cursor on/off
-
-You can also scroll with the mouse wheel.
+Sodium is licensed under the terms of the GPLv2. See the COPYING file.
 

@@ -1,3 +1,14 @@
+/*
+ * sodium.c 
+ *
+ * DVD cover art viewer / player
+ *
+ * Copyright (C) 2008-2009 Andrew Clayton
+ *
+ * License: GPLv2. See COPYING
+ *
+ */
+
 #include <clutter/clutter.h>
 #include <clutter/clutter-event.h>
 

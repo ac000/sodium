@@ -116,6 +116,7 @@ load_images(ClutterActor *stage, int direction)
  	 * images still vivisble
  	 */
 	clutter_group_remove_all(CLUTTER_GROUP(stage));
+
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		if (r == ROW_SIZE || i == nfiles)
                         break;

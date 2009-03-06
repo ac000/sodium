@@ -288,7 +288,6 @@ lookup_video(ClutterActor *stage, char *actor)
 	char movie[120];
 	char cmd[20];
 	char args[20];
-	int found = 0;
 
 	static FILE *fp;
 
@@ -304,15 +303,13 @@ lookup_video(ClutterActor *stage, char *actor)
 		if (strcmp(actor, image) == 0) {
 			fclose(fp);
 			play_video(cmd, args, movie);
-			found = 1;
-			break;
+			return;
 		}	
 	}
 
-	if (!found) {
-		printf("No movie for (%s)\n", actor);
-		no_video_notice(stage);
-	}
+	/* We get to here, we didn't find a video */
+	printf("No video for (%s)\n", actor);
+	no_video_notice(stage);
 }
 
 /* fork/exec the movie */

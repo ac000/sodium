@@ -21,9 +21,9 @@ available). Currently this is managed through a mapping file that maps image
 names to video names and the player to use and the arguments to pass to the
 player.
 
-It takes the form a colon (:) seperated fields flat file, e.g
+It takes the form of a pipe (|) seperated fields flat file, e.g
 
-	taken.jpg:action/Taken.mkv:xine:-f
+	taken.jpg|action/Taken.mkv|xine|-f
 
 taken.jpg 		is the name of image shown in sodium
 action/Taken.mkv 	is the path to the video

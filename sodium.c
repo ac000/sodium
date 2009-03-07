@@ -46,7 +46,7 @@ int nfiles = 0;		/* Number of files loaded into file list array */
 int loaded_images = 0;	/* How many images are currently shown on screen */
 char image_path[255]; 	/* Location of images passed in as argv[1] */
 char movie_list[255]; 	/* Path to .movie-list mapping file */
-char movie_path[255]; 	/* Path to top level directory containing the videos */
+char movie_base_path[255];	/* Path to base directory containing videos */
 int window_size; 	/* Size of the window */
 int image_size; 	/* Size of the image */
 
@@ -327,7 +327,9 @@ play_video(char *cmd, char *args, char *movie)
 {
 	pid_t pid;
 	int status;
+	char movie_path[255];
 	
+	strncpy(movie_path, movie_base_path, 130);
 	strncat(movie_path, movie, 120);
 	
 	pid = fork();
@@ -401,8 +403,8 @@ main(int argc, char *argv[])
 
 	/* Setup the video path if supplied */
 	if (argc == 4) {
-		strncpy(movie_path, argv[3], 120);
-		strcat(movie_path, "/");
+		strncpy(movie_base_path, argv[3], 120);
+		strcat(movie_base_path, "/");
 	} 
 
 	strncpy(image_path, argv[1], 240);

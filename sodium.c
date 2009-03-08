@@ -37,6 +37,8 @@
 #define HME		2
 #define END		3
 
+/* Thresh hold for time difference in ms between scroll events */ 
+#define SCROLL_THRESH	750
 
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
@@ -170,8 +172,9 @@ load_images(ClutterActor *stage, int direction)
 static void
 input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 {
-	/* Cursor is defaulted to visible */
-	static int cur_toggle = 1;
+	static int cur_toggle = 1;	/* Cursor is defaulted to visible */
+	static int pset = 0;		/* previous scroll event time */
+	int setd = 0;			/* scroll event time difference */
 	int x = 0;
 	int y = 0;
 
@@ -212,10 +215,27 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		}
 	}
 	case CLUTTER_SCROLL:
-		if (event->scroll.direction == CLUTTER_SCROLL_UP)
+		/*
+ 		 * Limit the amount of scroll events we act on to one event in
+ 		 * SCROLL_TRESH milliseconds. This avoids over scrolling 
+ 		 * through the images, particulary on a trackpad where it's 
+ 		 * hard to judge what constitutes a single scroll event.
+ 		 */
+		setd = clutter_event_get_time(event) - pset;
+		printf("pset = (%d), setd = (%d)\n", pset, setd);
+
+		if (event->scroll.direction == CLUTTER_SCROLL_UP && 
+							setd > SCROLL_THRESH) {
+			printf("Scroll Up @ (%u)\n",
+						clutter_event_get_time(event));
 			load_images(stage, BWD);
-		else if (event->scroll.direction == CLUTTER_SCROLL_DOWN)
+		} else if (event->scroll.direction == CLUTTER_SCROLL_DOWN &&
+							setd > SCROLL_THRESH) {
+			printf("Scroll Down @ (%u)\n",
+				clutter_event_get_time(event));
 			load_images(stage, FWD);
+		}
+		pset = clutter_event_get_time(event);
 		break;
 	case CLUTTER_BUTTON_PRESS:
 		clutter_actor_hide(label);

@@ -81,6 +81,8 @@ process_directory(const gchar *name)
 			nfiles++;		
 		}
     	}
+
+	closedir(dir);
 }
 
 /* Load images onto stage */
@@ -317,6 +319,7 @@ lookup_video(ClutterActor *stage, char *actor)
 	}
 
 	/* We get to here, we didn't find a video */
+	fclose(fp);
 	printf("No video for (%s)\n", actor);
 	no_video_notice(stage);
 }
@@ -329,8 +332,14 @@ play_video(char *cmd, char *args, char *movie)
 	int status;
 	char movie_path[255];
 	
-	strncpy(movie_path, movie_base_path, 130);
-	strncat(movie_path, movie, 120);
+	/* Cater for either absolute or relative paths for videos */
+	if (movie[0] == '/') {
+		strncpy(movie_path, movie, 254);
+	} else {
+		strncpy(movie_path, movie_base_path, 130);
+		strncat(movie_path, movie, 120);
+	}
+	
 	
 	pid = fork();
 

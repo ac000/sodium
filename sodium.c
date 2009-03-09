@@ -318,7 +318,7 @@ lookup_video(ClutterActor *stage, char *actor)
 	char image[120];
 	char movie[120];
 	char cmd[20];
-	char args[20];
+	char args[120];
 
 	static FILE *fp;
 
@@ -329,7 +329,7 @@ lookup_video(ClutterActor *stage, char *actor)
 	}
 	
 	while (fgets(string, 254, fp)) {
-		sscanf(string, "%119[^|]|%119[^|]|%19[^|]|%19s",
+		sscanf(string, "%119[^|]|%119[^|]|%119[^|]|%119[^\n]",
 						image, movie, cmd, args);
 		if (strcmp(actor, image) == 0) {
 			fclose(fp);
@@ -351,6 +351,8 @@ play_video(char *cmd, char *args, char *movie)
 	pid_t pid;
 	int status;
 	char movie_path[255];
+	char buf[512] = "\0";
+	gchar **argv = NULL;
 	
 	/* Cater for either absolute or relative paths for videos */
 	if (movie[0] == '/') {
@@ -360,7 +362,16 @@ play_video(char *cmd, char *args, char *movie)
 		strncat(movie_path, movie, 120);
 	}
 	
+	/* Build up a string that will be parsed into an argument list */
+	strcpy(buf, cmd);
+	strcat(buf, " ");
+	strcat(buf, args);
+	strcat(buf, " ");
+	strcat(buf, movie_path);
 	
+	g_shell_parse_argv(buf, NULL, &argv, NULL);
+
+
 	pid = fork();
 
 	if (pid > 0) {
@@ -370,7 +381,7 @@ play_video(char *cmd, char *args, char *movie)
 		/* child */
 		printf("Playing: (%s)\n", movie_path);
 		printf("execing: %s %s %s\n", cmd, args, movie_path);
-		execlp(cmd, cmd, args, movie_path, NULL);
+		execvp(cmd, argv);
 	}		
 }
 

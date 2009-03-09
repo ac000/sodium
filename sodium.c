@@ -380,9 +380,9 @@ no_video_notice(ClutterActor *stage)
 {
 	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
-	label = clutter_label_new_full("Sans 36", "No Video", &actor_color);
-	clutter_actor_set_size(label, 500, 500);
-	clutter_actor_set_position(label, 342, 400);
+	label = clutter_label_new_full("Sans 32", "No Video", &actor_color);
+	clutter_actor_set_position(label, image_size, 
+						image_size + 0.5 * image_size);
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);
 	clutter_actor_show(label);
 }

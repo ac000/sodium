@@ -333,7 +333,7 @@ lookup_video(ClutterActor *stage, char *actor)
 						image, movie, cmd, args);
 		if (strcmp(actor, image) == 0) {
 			fclose(fp);
-			play_video(cmd, args, movie);
+			build_exec_cmd(cmd, args, movie);
 			return;
 		}	
 	}
@@ -344,12 +344,10 @@ lookup_video(ClutterActor *stage, char *actor)
 	no_video_notice(stage);
 }
 
-/* fork/exec the movie */
+/* Build the command and arguments to be exec'd */
 static void
-play_video(char *cmd, char *args, char *movie)
+build_exec_cmd(char *cmd, char *args, char *movie)
 {
-	pid_t pid;
-	int status;
 	char video_paths[1024] = "\0";
 	char buf[512] = "\0";
 	gchar **argv = NULL;
@@ -392,6 +390,18 @@ play_video(char *cmd, char *args, char *movie)
 	/* Split buf up into a vector array for passing to execvp */
 	g_shell_parse_argv(buf, NULL, &argv, NULL);
 
+	printf("Playing: (%s)\n", video_paths);
+	printf("execing: %s %s %s\n", cmd, args, video_paths);
+	play_video(argv);
+}
+
+/* fork/exec the movie */
+static void
+play_video(gchar **argv)
+{
+	pid_t pid;
+	int status;
+
 
 	pid = fork();
 
@@ -401,8 +411,6 @@ play_video(char *cmd, char *args, char *movie)
 		g_strfreev(argv);
 	} else if (pid == 0) {
 		/* child */
-		printf("Playing: (%s)\n", video_paths);
-		printf("execing: %s %s %s\n", cmd, args, video_paths);
 		execvp(argv[0], argv);
 	}		
 }

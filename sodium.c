@@ -377,6 +377,7 @@ play_video(char *cmd, char *args, char *movie)
 	if (pid > 0) {
 		/* parent */
 		waitpid(-1, &status, 0);
+		g_strfreev(argv);
 	} else if (pid == 0) {
 		/* child */
 		printf("Playing: (%s)\n", movie_path);

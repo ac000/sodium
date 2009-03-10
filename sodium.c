@@ -350,25 +350,46 @@ play_video(char *cmd, char *args, char *movie)
 {
 	pid_t pid;
 	int status;
-	char movie_path[255];
+	char video_paths[1024] = "\0";
 	char buf[512] = "\0";
 	gchar **argv = NULL;
+	gchar **videos = NULL;
 	
-	/* Cater for either absolute or relative paths for videos */
-	if (movie[0] == '/') {
-		strncpy(movie_path, movie, 254);
-	} else {
-		strncpy(movie_path, movie_base_path, 130);
-		strncat(movie_path, movie, 120);
-	}
-	
+
 	/* Build up a string that will be parsed into an argument list */
 	strcpy(buf, cmd);
 	strcat(buf, " ");
 	strcat(buf, args);
 	strcat(buf, " ");
-	strcat(buf, movie_path);
-	
+
+	/* Cater for multiple space seperated video paths to be specified */  
+	if (strstr(movie, " ")) {
+		videos = g_strsplit(movie, " ", -1);
+		while (*videos != NULL) {
+			/* 
+ 			 * Cater for either absolute or relative paths 
+ 			 * for videos. 
+ 			 */
+			if (*videos[0] != '/') {
+				strcat(video_paths, movie_base_path);
+				strcat(video_paths, *videos++);
+			} else {
+				strcat(video_paths, *videos++);
+			}
+
+			strcat(video_paths, " ");
+		}
+	} else {
+		if (movie[0] == '/') {
+			strcpy(video_paths, movie);
+		} else {
+			strcpy(video_paths, movie_base_path);
+			strcat(video_paths, movie);
+		}
+	}
+
+	strcat(buf, video_paths);
+	/* Split buf up into a vector array for passing to execvp */
 	g_shell_parse_argv(buf, NULL, &argv, NULL);
 
 
@@ -380,9 +401,9 @@ play_video(char *cmd, char *args, char *movie)
 		g_strfreev(argv);
 	} else if (pid == 0) {
 		/* child */
-		printf("Playing: (%s)\n", movie_path);
-		printf("execing: %s %s %s\n", cmd, args, movie_path);
-		execvp(cmd, argv);
+		printf("Playing: (%s)\n", video_paths);
+		printf("execing: %s %s %s\n", cmd, args, video_paths);
+		execvp(argv[0], argv);
 	}		
 }
 

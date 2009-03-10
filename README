@@ -49,6 +49,15 @@ can only pass in one of these.
 
 Alternatively you can specify absolute paths (starting with a '/').
 
+In the mapping file you can also specify multiple space seperated video paths,
+e.g
+
+half_past_dead-half_past_dead_2.jpg|action/Half_Past_Dead.mkv action/Half_Past_Dead_2.mkv|xine|-f
+
+Again these paths can either be relative or absolute. Both paths will be passed
+to the launched command. This is perhaps useful where you have a box set 
+containing a number of movies.
+
 The mapping file should be called .movie-list and placed in the same location
 as the images being displayed.
 

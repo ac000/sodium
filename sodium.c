@@ -318,7 +318,7 @@ lookup_video(ClutterActor *stage, char *actor)
 	char image[120];
 	char movie[120];
 	char cmd[20];
-	char args[120];
+	char args[120] = "\0";
 
 	static FILE *fp;
 

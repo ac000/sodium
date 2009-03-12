@@ -42,7 +42,7 @@
 
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
-char files[500][255];	/* Array to hold image filenames */
+GPtrArray *files;	/* Array to hold image filenames */
 int array_pos = 0; 	/* Current position in file list array */
 int nfiles = 0;		/* Number of files loaded into file list array */
 int loaded_images = 0;	/* How many images are currently shown on screen */
@@ -71,15 +71,18 @@ process_directory(const gchar *name)
 {
 	DIR *dir;
 	struct dirent *entry;
+	char *fname;
 
 	dir = opendir(name);
 	printf("Opening directory: %s\n", name);
 	chdir(name);
 	
+	files = g_ptr_array_new();
 	while ((entry = readdir(dir)) != NULL) {
 		if (is_supported_img(entry->d_name)) {
-			printf("Adding image %s to list\n", entry->d_name);
-			strncpy(files[nfiles], entry->d_name, 254);
+			fname = g_strdup(entry->d_name);
+			printf("Adding image %s to list\n", fname);
+			g_ptr_array_add(files, (gpointer) fname);
 			nfiles++;		
 		}
     	}
@@ -141,8 +144,10 @@ load_images(ClutterActor *stage, int direction)
 		if (r == ROW_SIZE || i == nfiles)
                         break;
 
-		printf("Loading image: %s\n", files[i]);
-		img = clutter_texture_new_from_file(files[i], NULL);
+		printf("Loading image: %s\n", 
+					(char *) g_ptr_array_index(files, i));
+		img = clutter_texture_new_from_file(g_ptr_array_index(files, i),
+									NULL);
 		clutter_actor_set_size(img, image_size, image_size);
 		clutter_actor_set_position(img, x, y);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
@@ -303,7 +308,8 @@ which_image(ClutterActor *stage, int x, int y)
 	} 
 
 	if (img_no <= loaded_images) {
-		image = files[array_pos - loaded_images + img_no - 1];
+		image = g_ptr_array_index(files, 
+					array_pos - loaded_images + img_no - 1);
 		lookup_video(stage, image);
 	} else {
 		printf("No image at (%d)\n", img_no);

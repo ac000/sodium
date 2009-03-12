@@ -118,7 +118,17 @@ load_images(ClutterActor *stage, int direction)
 
 	if (direction == BWD) {
 		if (array_pos <= GRID_SIZE) {
-			return;
+			/* 
+ 			 * Loop round to the end of the images. If we have 
+ 			 * exactly nfiles / GRID_SIZE images then goto the
+ 			 * end of array - GRID_SIZE images. Otherwise goto the
+ 			 * end of the array - the number of images left over 
+ 			 * below GRID_SIZE.
+ 			 */  
+			if (nfiles % GRID_SIZE == 0)	
+				array_pos = nfiles - GRID_SIZE;
+			else 
+				array_pos = nfiles - (nfiles % GRID_SIZE);
 		} else {
 			/*
  			 * If we are at the end of the images and there is not
@@ -133,9 +143,10 @@ load_images(ClutterActor *stage, int direction)
 		}
 	} else if (direction == FWD) {
 		if (array_pos >= nfiles)
-			return;
+			/* Loop round to beginning of images */
+			array_pos = 0;
 	} else if (direction == HME) {
-		/* Goto begining of images */
+		/* Goto beginning of images */
 		array_pos = 0;
 	} else if (direction == END) {
 		/* Goto end of images */

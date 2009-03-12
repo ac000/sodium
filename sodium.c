@@ -116,14 +116,15 @@ load_images(ClutterActor *stage, int direction)
 	int i; 
 	int x = 0, y = 0, c = 0, r = 0;
 
-	if (direction == BWD) {
-		if (array_pos <= GRID_SIZE) {
+	if (direction == BWD || direction == END) {
+		if (array_pos <= GRID_SIZE || direction == END) {
 			/* 
- 			 * Loop round to the end of the images. If we have 
- 			 * exactly nfiles / GRID_SIZE images then goto the
- 			 * end of array - GRID_SIZE images. Otherwise goto the
- 			 * end of the array - the number of images left over 
- 			 * below GRID_SIZE.
+ 			 * If we are at the first screen of images. Loop round 
+ 			 * to the end of the images. If we have exactly 
+ 			 * nfiles / GRID_SIZE images then goto the end of the 
+ 			 * array - GRID_SIZE images. Otherwise goto the end of 
+ 			 * the array - the number of images left over below 
+ 			 * GRID_SIZE.
  			 */  
 			if (nfiles % GRID_SIZE == 0)	
 				array_pos = nfiles - GRID_SIZE;
@@ -141,19 +142,10 @@ load_images(ClutterActor *stage, int direction)
 			else
 				array_pos -= GRID_SIZE * 2;
 		}
-	} else if (direction == FWD) {
-		if (array_pos >= nfiles)
-			/* Loop round to beginning of images */
-			array_pos = 0;
-	} else if (direction == HME) {
-		/* Goto beginning of images */
+	} else if ((direction == FWD && array_pos >= nfiles) || 
+							direction == HME) {
+		/* Loop round to beginning of images */
 		array_pos = 0;
-	} else if (direction == END) {
-		/* Goto end of images */
-		if (nfiles % GRID_SIZE != 0)
-			array_pos = nfiles - (nfiles % GRID_SIZE);
-		else
-			array_pos = nfiles - GRID_SIZE;
 	}
 	
 	/* How many images are on screen */	

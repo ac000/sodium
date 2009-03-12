@@ -53,6 +53,21 @@ int window_size; 	/* Size of the window */
 int image_size; 	/* Size of the image */
 
 
+/* Function to help sort the files list array */
+static int
+compare_string(const void *p1, const void *p2)
+{
+	/* 
+ 	 * Function used from the qsort(3) man page
+ 	 *
+ 	 * The actual arguments to this function are "pointers to
+	 * pointers to char", but strcmp(3) arguments are "pointers
+	 * to char", hence the following cast plus dereference 
+	 */
+
+        return strcmp(* (char * const *) p1, * (char * const *) p2);
+}
+
 /* Check to see if the file is a valid image */
 static gboolean
 is_supported_img(const char *name)
@@ -88,6 +103,8 @@ process_directory(const gchar *name)
     	}
 
 	closedir(dir);
+
+	g_ptr_array_sort(files, compare_string);
 }
 
 /* Load images onto stage */

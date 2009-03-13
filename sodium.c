@@ -465,8 +465,8 @@ set_dimensions(char *size)
 
 	image_size = window_size / ROW_SIZE;
 
-	printf("Setting window size to = (%dx%d)\n", window_size, window_size);
-	printf("Setting image size to  = (%dx%d)\n", image_size, image_size); 
+	printf("Setting window size to (%dx%d)\n", window_size, window_size);
+	printf("Setting image size to  (%dx%d)\n", image_size, image_size); 
 }
 
 /* Display a help/usage summary */

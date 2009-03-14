@@ -72,7 +72,9 @@ compare_string(const void *p1, const void *p2)
 static gboolean
 is_supported_img(const char *name)
 {
-	GdkPixbufFormat *fmt = gdk_pixbuf_get_file_info(name, NULL, NULL);
+	GdkPixbufFormat *fmt;
+
+	fmt = gdk_pixbuf_get_file_info(name, NULL, NULL);
 
 	if (fmt)
 		return (gdk_pixbuf_format_is_disabled(fmt) != TRUE);
@@ -364,7 +366,7 @@ lookup_video(ClutterActor *stage, char *actor)
 		}	
 	}
 
-	/* We get to here, we didn't find a video */
+	/* If we get to here, we didn't find a video */
 	fclose(fp);
 	printf("No video for (%s)\n", actor);
 	no_video_notice(stage);
@@ -379,7 +381,6 @@ build_exec_cmd(char *cmd, char *args, char *movie)
 	gchar **argv = NULL;
 	gchar **videos = NULL;
 	
-
 	/* Build up a string that will be parsed into an argument list */
 	strcpy(buf, cmd);
 	strcat(buf, " ");
@@ -427,7 +428,6 @@ play_video(gchar **argv)
 {
 	pid_t pid;
 	int status;
-
 
 	pid = fork();
 

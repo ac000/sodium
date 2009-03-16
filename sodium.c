@@ -342,10 +342,10 @@ which_image(ClutterActor *stage, int x, int y)
 static void
 lookup_video(ClutterActor *stage, char *actor)
 {
-	char string[255];
+	char string[512];
 	char image[120];
 	char movie[120];
-	char cmd[20];
+	char cmd[120];
 	char args[120] = "\0";
 
 	static FILE *fp;
@@ -356,7 +356,7 @@ lookup_video(ClutterActor *stage, char *actor)
 		return;
 	}
 	
-	while (fgets(string, 254, fp)) {
+	while (fgets(string, 512, fp)) {
 		sscanf(string, "%119[^|]|%119[^|]|%119[^|]|%119[^\n]",
 						image, movie, cmd, args);
 		if (strcmp(actor, image) == 0) {

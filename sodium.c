@@ -363,7 +363,9 @@ lookup_video(ClutterActor *stage, char *actor)
 			fclose(fp);
 			build_exec_cmd(cmd, args, movie);
 			return;
-		}	
+		}
+
+		args[0] = '\0';
 	}
 
 	/* If we get to here, we didn't find a video */

@@ -58,6 +58,13 @@ Again these paths can either be relative or absolute. Both paths will be passed
 to the launched command. This is perhaps useful where you have a box set 
 containing a number of movies.
 
+If you have a box set of a series for example. You can do something like
+
+24_season_4.jog|series/24/Season_4/|nautilus|
+
+which would bring up a nautilus window showing the contents of the Season_4 
+directory.
+
 The mapping file should be called .movie-list and placed in the same location
 as the images being displayed.
 

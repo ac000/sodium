@@ -53,8 +53,7 @@ int image_size; 	/* Size of the image */
 
 
 /* Function to help sort the files list array */
-static int
-compare_string(const void *p1, const void *p2)
+static int compare_string(const void *p1, const void *p2)
 {
 	/* 
  	 * Function used from the qsort(3) man page
@@ -68,8 +67,7 @@ compare_string(const void *p1, const void *p2)
 }
 
 /* Check to see if the file is a valid image */
-static gboolean
-is_supported_img(const char *name)
+static gboolean is_supported_img(const char *name)
 {
 	GdkPixbufFormat *fmt;
 
@@ -82,8 +80,7 @@ is_supported_img(const char *name)
 }
 
 /* Read in the image file names into an array */
-static void
-process_directory(const gchar *name)
+static void process_directory(const gchar *name)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -109,8 +106,7 @@ process_directory(const gchar *name)
 }
 
 /* Load images onto stage */
-static void
-load_images(ClutterActor *stage, int direction)
+static void load_images(ClutterActor *stage, int direction)
 {
         ClutterActor *img;
 	
@@ -195,8 +191,8 @@ load_images(ClutterActor *stage, int direction)
 }
 
 /* Process keyboard/mouse events */
-static void
-input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
+static void input_events_cb(ClutterActor *stage, ClutterEvent *event, 
+							gpointer user_data)
 {
 	static int cur_toggle = 1;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
@@ -276,8 +272,7 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 }
 
 /* Determine which image on the grid was clicked. */
-static void
-which_image(ClutterActor *stage, int x, int y)
+static void which_image(ClutterActor *stage, int x, int y)
 {
 	char *image;
 	int img_no = 0;
@@ -337,8 +332,7 @@ which_image(ClutterActor *stage, int x, int y)
 }
  
 /* Lookup the clicked image in the .movie-list file */
-static void
-lookup_video(ClutterActor *stage, char *actor)
+static void lookup_video(ClutterActor *stage, char *actor)
 {
 	char string[512];
 	char image[120];
@@ -373,8 +367,7 @@ lookup_video(ClutterActor *stage, char *actor)
 }
 
 /* Build the command and arguments to be exec'd */
-static void
-build_exec_cmd(char *cmd, char *args, char *movie)
+static void build_exec_cmd(char *cmd, char *args, char *movie)
 {
 	char video_paths[1024] = "\0";
 	char buf[512] = "\0";
@@ -423,8 +416,7 @@ build_exec_cmd(char *cmd, char *args, char *movie)
 }
 
 /* fork/exec the movie */
-static void
-play_video(gchar **argv)
+static void play_video(gchar **argv)
 {
 	pid_t pid;
 	int status;
@@ -442,8 +434,7 @@ play_video(gchar **argv)
 }
 
 /* Display a "No Video" message for images with no video yet */
-static void
-no_video_notice(ClutterActor *stage)
+static void no_video_notice(ClutterActor *stage)
 {
 	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
@@ -455,8 +446,7 @@ no_video_notice(ClutterActor *stage)
 }
 
 /* Setup the window and image size dimensions */
-static void
-set_dimensions(char *size)
+static void set_dimensions(char *size)
 {
 	window_size = atoi(size);
 		
@@ -470,8 +460,7 @@ set_dimensions(char *size)
 }
 
 /* Display a help/usage summary */
-static void
-display_usage()
+static void display_usage()
 {
 	printf("\nUsage: sodium image_directory size [video_directory]\n\n");
 	printf("Where image_directory is the path to the location of the ");
@@ -485,8 +474,7 @@ display_usage()
 	exit(1);
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	ClutterActor *stage;
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
@@ -525,6 +513,6 @@ main(int argc, char *argv[])
 
 	clutter_main();
 
-	return EXIT_SUCCESS;
+	exit(0);
 }
 

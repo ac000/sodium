@@ -10,7 +10,6 @@
  */
 
 #include <clutter/clutter.h>
-#include <clutter/clutter-event.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -202,13 +201,12 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 	static int cur_toggle = 1;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
-	int x = 0;
-	int y = 0;
+	gfloat x = 0;
+	gfloat y = 0;
 
 	switch (event->type) {
 	case CLUTTER_KEY_PRESS: {
-			guint sym = clutter_key_event_symbol((ClutterKeyEvent*)
-								 event);
+			guint sym = clutter_event_get_key_symbol(event);
 		switch (sym) {
 		case CLUTTER_Page_Up:
 		case CLUTTER_Up:
@@ -269,7 +267,7 @@ input_events_cb(ClutterActor *stage, ClutterEvent *event, gpointer user_data)
 		break;
 	case CLUTTER_BUTTON_RELEASE:
 		clutter_event_get_coords(event, &x, &y);
-		printf("Clicked image at (%d, %d)\n", x, y);
+		printf("Clicked image at (%.0f, %.0f)\n", x, y);
 		which_image(stage, x, y);
 		break;
 	default:
@@ -449,7 +447,7 @@ no_video_notice(ClutterActor *stage)
 {
 	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
-	label = clutter_label_new_full("Sans 32", "No Video", &actor_color);
+	label = clutter_text_new_full("Sans 32", "No Video", &actor_color);
 	clutter_actor_set_position(label, image_size, 
 						image_size + 0.5 * image_size);
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);

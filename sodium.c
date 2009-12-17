@@ -86,7 +86,11 @@ static void process_directory(const gchar *name)
 	struct dirent *entry;
 	char *fname;
 
-	dir = opendir(name);
+	if (!(dir = opendir(name))) {
+		printf("Can't open images directory (%s)\n", name);
+		exit(-1);
+	}
+
 	printf("Opening directory: %s\n", name);
 	chdir(name);
 	
@@ -343,9 +347,9 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	static FILE *fp;
 
 	printf("Opening movie list: (%s)\n", movie_list);
-	if (! (fp = fopen(movie_list, "r"))) {
+	if (!(fp = fopen(movie_list, "r"))) {
 		printf("Can't open movie list: (%s)\n", movie_list);
-		return;
+		exit(-1);
 	}
 	
 	while (fgets(string, 512, fp)) {
@@ -471,7 +475,7 @@ static void display_usage()
 	printf("stored. Videos listed in the .movie-list file should be ");
 	printf("given relative to this path.\n");
 	
-	exit(1);
+	exit(-1);
 }
 
 int main(int argc, char *argv[])

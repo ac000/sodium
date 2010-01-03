@@ -23,15 +23,16 @@ You can navigate via the following:
 	Home				First Page
 	End				Last Page
 	c				Toggle cursor on/off
+	1 to 9				Select Video
 
 You can also scroll with the mouse wheel. NOTE: Mouse scroll events are limited
 to 1 scroll event every 750ms to prevent over scrolling on devices such as 
 trackpads.
 
-You can also click on an image to have the video for that played (if it's 
-available). Currently this is managed through a mapping file that maps image 
-names to video names and the player to use and the arguments to pass to the
-player. 
+You can also click on an image or press 1..9 (telephone layout) to have the 
+video for that played (if it's available). Currently this is managed through 
+a mapping file that maps image names to video names and the player to use and 
+the arguments to pass to the player. 
 
 It takes the form of a pipe (|) seperated fields flat file, e.g one entry 
 would look like:

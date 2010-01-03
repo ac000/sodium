@@ -198,15 +198,18 @@ static void load_images(ClutterActor *stage, int direction)
 static void input_events_cb(ClutterActor *stage, ClutterEvent *event, 
 							gpointer user_data)
 {
+	guint sym;
 	static int cur_toggle = 1;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
 	gfloat x = 0;
 	gfloat y = 0;
+	int img_no;
+	char *image;
 
 	switch (event->type) {
 	case CLUTTER_KEY_PRESS: {
-			guint sym = clutter_event_get_key_symbol(event);
+		sym = clutter_event_get_key_symbol(event);
 		switch (sym) {
 		case CLUTTER_Page_Up:
 		case CLUTTER_Up:
@@ -233,6 +236,24 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 				cur_toggle = 0;
 			}
 			break;	
+		case CLUTTER_1:
+		case CLUTTER_2:
+		case CLUTTER_3:
+		case CLUTTER_4:
+		case CLUTTER_5:
+		case CLUTTER_6:
+		case CLUTTER_7:
+		case CLUTTER_8:
+		case CLUTTER_9:
+			img_no = sym - 48; /* 1 is sym(49) */ 
+			if (img_no <= loaded_images) {
+				image = g_ptr_array_index(files,
+					array_pos - loaded_images + img_no - 1);
+				lookup_video(stage, image);
+			} else {
+				printf("No image at (%d)\n", img_no);
+			}
+			break;
 		case CLUTTER_Escape:
 		case CLUTTER_q:
 			clutter_main_quit();

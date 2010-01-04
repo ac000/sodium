@@ -256,6 +256,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			break;
 		case CLUTTER_Escape:
 		case CLUTTER_q:
+		case 269025110: /* Exit button on Hauppauge Nova-T remote */
 			clutter_main_quit();
 			break;
 		}

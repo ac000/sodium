@@ -114,9 +114,9 @@ static void process_directory(const gchar *name)
 static void load_images(ClutterActor *stage, int direction)
 {
         ClutterActor *img;
-	
 	int i; 
 	int x = 0, y = 0, c = 0, r = 0;
+	char image_name[5];	/* i_NN */
 
 	if (direction == BWD || direction == END) {
 		if (array_pos <= GRID_SIZE || direction == END) {
@@ -174,6 +174,8 @@ static void load_images(ClutterActor *stage, int direction)
 		clutter_actor_set_position(img, x, y);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
 		clutter_actor_show(img);
+		sprintf(image_name, "i_%.2d", loaded_images);
+		clutter_actor_set_name(img, image_name);
 
 		/* Allow the actor to emit events. */
 		clutter_actor_set_reactive(img, TRUE);
@@ -207,6 +209,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 	gfloat y = 0;
 	int img_no;
 	char *image;
+	ClutterActor *actor;
 
 	switch (event->type) {
 	case CLUTTER_KEY_PRESS: {
@@ -292,6 +295,14 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		clutter_event_get_coords(event, &x, &y);
 		printf("Clicked image at (%.0f, %.0f)\n", x, y);
 		which_image(stage, x, y);
+		break;
+	case CLUTTER_ENTER:
+		actor = clutter_event_get_source(event);
+		printf("%s has focus\n", clutter_actor_get_name(actor));
+		break;
+	case CLUTTER_LEAVE:
+		actor = clutter_event_get_source(event);
+		printf("%s lost focus\n", clutter_actor_get_name(actor));
 		break;
 	default:
 		break;

@@ -446,13 +446,10 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 static void play_video(gchar **argv)
 {
 	pid_t pid;
-	int status;
 
 	pid = fork();
-
 	if (pid > 0) {
 		/* parent */
-		waitpid(-1, &status, 0);
 		g_strfreev(argv);
 	} else if (pid == 0) {
 		/* child */
@@ -501,14 +498,30 @@ static void display_usage()
 	exit(-1);
 }
 
+/* Reap child pids */
+static void reaper(int signo)
+{
+	int status;
+
+	wait(&status);
+}
+
 int main(int argc, char *argv[])
 {
 	ClutterActor *stage;
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
 	const gchar *stage_title = { "sodium - DVD Cover Art Viewer / Player" };
+	struct sigaction action;
 
 	if (argc < 3) 
 		display_usage();
+
+	/* Setup signal handler to reap child pids */
+	memset(&action, 0, sizeof(&action));
+	sigemptyset(&action.sa_mask);
+	action.sa_handler = reaper;
+	action.sa_flags = SA_RESTART;
+	sigaction(SIGCHLD, &action, NULL);
 
 	set_dimensions(argv[2]);
 

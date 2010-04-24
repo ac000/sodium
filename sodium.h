@@ -22,3 +22,4 @@ static void no_video_notice(ClutterActor *stage);
 static void set_dimensions(char *size);
 static void display_usage();
 static int compare_string(const void *p1, const void *p2);
+static void reaper(int signo);

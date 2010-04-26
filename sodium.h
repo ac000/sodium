@@ -3,7 +3,7 @@
  *
  * Function definitions for sodium.c
  *
- * Copyright (C) 2008-2009 Andrew Clayton
+ * Copyright (C) 2008-2010 Andrew Clayton
  *
  * License: GPLv2. See COPYING
  *

@@ -40,8 +40,10 @@
 /* Thresh hold for time difference in ms between scroll events */ 
 #define SCROLL_THRESH	750
 
+int animation = 1;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
+ClutterBehaviour *behaviour;
 GPtrArray *files;	/* Array to hold image filenames */
 int array_pos = 0; 	/* Current position in file list array */
 int nfiles = 0;		/* Number of files loaded into file list array */
@@ -52,6 +54,55 @@ char movie_base_path[255];	/* Path to base directory containing videos */
 int window_size; 	/* Size of the window */
 int image_size; 	/* Size of the image */
 
+
+static gdouble on_alpha(ClutterAlpha *alpha, gpointer data)
+{
+	ClutterTimeline *timeline = clutter_alpha_get_timeline(alpha);
+
+	return clutter_timeline_get_progress(timeline);
+}
+
+static void animate_image_setup()
+{
+	ClutterTimeline *timeline;
+	ClutterAlpha *alpha;
+
+	timeline = clutter_timeline_new(5000 /* milliseconds */);
+	clutter_timeline_set_loop(timeline, TRUE);
+	clutter_timeline_start(timeline);
+	alpha = clutter_alpha_new_with_func(timeline, &on_alpha, NULL, NULL);
+	behaviour = clutter_behaviour_rotate_new(alpha,
+				CLUTTER_Y_AXIS, CLUTTER_ROTATE_CW, 0, 360);
+	clutter_behaviour_rotate_set_center(
+			CLUTTER_BEHAVIOUR_ROTATE(behaviour),
+					image_size / 2, image_size / 2, 0);
+	g_object_unref(timeline);
+}
+
+static void animate_image_start(ClutterActor *actor)
+{
+	if (!animation)
+		return;
+
+	clutter_behaviour_apply(behaviour, actor);
+}
+
+static void animate_image_stop(ClutterActor *actor)
+{
+	if (!animation)
+		return;
+
+	clutter_behaviour_remove(behaviour, actor);
+}
+
+static void reset_image(ClutterActor *actor)
+{
+	if (!animation)
+		return;
+
+	animate_image_stop(actor);
+	clutter_actor_set_rotation(actor, CLUTTER_Y_AXIS, 0, 0, 0, 0);
+}
 
 /* Function to help sort the files list array */
 static int compare_string(const void *p1, const void *p2)
@@ -174,7 +225,7 @@ static void load_images(ClutterActor *stage, int direction)
 		clutter_actor_set_position(img, x, y);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
 		clutter_actor_show(img);
-		sprintf(image_name, "i_%.2d", loaded_images);
+		sprintf(image_name, "i_%.2d", loaded_images + 1);
 		clutter_actor_set_name(img, image_name);
 
 		/* Allow the actor to emit events. */
@@ -205,11 +256,12 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 	static int cur_toggle = 1;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
-	gfloat x = 0;
-	gfloat y = 0;
+	gfloat x = 0.0;
+	gfloat y = 0.0;
 	int img_no;
 	char *image;
 	ClutterActor *actor;
+	static ClutterActor *last_actor;
 
 	switch (event->type) {
 	case CLUTTER_KEY_PRESS: {
@@ -292,17 +344,28 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		clutter_actor_hide(label);
 		break;
 	case CLUTTER_BUTTON_RELEASE:
+		actor = clutter_event_get_source(event);
+		if (strncmp(clutter_actor_get_name(actor), "i_", 2) == 0)
+			reset_image(actor);
 		clutter_event_get_coords(event, &x, &y);
 		printf("Clicked image at (%.0f, %.0f)\n", x, y);
-		which_image(stage, x, y);
+		img_no = which_image(stage, x, y);
+		lookup_image(stage, img_no);
 		break;
 	case CLUTTER_ENTER:
 		actor = clutter_event_get_source(event);
 		printf("%s has focus\n", clutter_actor_get_name(actor));
+		/* Don't animate the stage! */
+		if (strncmp(clutter_actor_get_name(actor), "i_", 2) == 0) {
+			reset_image(last_actor);
+			animate_image_start(actor);
+		}
 		break;
 	case CLUTTER_LEAVE:
 		actor = clutter_event_get_source(event);
 		printf("%s lost focus\n", clutter_actor_get_name(actor));
+		if (strncmp(clutter_actor_get_name(actor), "i_", 2) == 0)
+			last_actor = actor;
 		break;
 	default:
 		break;
@@ -310,9 +373,8 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 }
 
 /* Determine which image on the grid was clicked. */
-static void which_image(ClutterActor *stage, int x, int y)
+static int which_image(ClutterActor *stage, int x, int y)
 {
-	char *image;
 	int img_no = 0;
 
 	printf("array_pos = %d, loaded_images = %d\n", array_pos, 
@@ -359,6 +421,13 @@ static void which_image(ClutterActor *stage, int x, int y)
 		img_no = 9;
 		printf("Image 9\n");
 	} 
+
+	return img_no;
+}
+
+static void lookup_image(ClutterActor *stage, int img_no)
+{
+	char *image;
 
 	if (img_no <= loaded_images) {
 		image = g_ptr_array_index(files, 
@@ -523,9 +592,13 @@ int main(int argc, char *argv[])
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
 	const gchar *stage_title = { "sodium - DVD Cover Art Viewer / Player" };
 	struct sigaction action;
+	char *e_animation;
 
 	if (argc < 3) 
 		display_usage();
+
+	if ((e_animation = getenv("SODIUM_ANIMATION")))
+		animation = atoi(e_animation);
 
 	/* Setup signal handler to reap child pids */
 	memset(&action, 0, sizeof(&action));
@@ -554,6 +627,7 @@ int main(int argc, char *argv[])
 	clutter_stage_set_color(CLUTTER_STAGE(stage), &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	g_object_set(stage, "cursor-visible", TRUE, NULL);
+	clutter_actor_set_name(stage, "stage");
 	clutter_actor_show(stage);
 	
 	process_directory(image_path);
@@ -561,6 +635,9 @@ int main(int argc, char *argv[])
 	
 	/* Handle keyboard/mouse events */
 	g_signal_connect(stage, "event", G_CALLBACK(input_events_cb), NULL);
+
+	if (animation)
+		animate_image_setup();
 
 	clutter_main();
 

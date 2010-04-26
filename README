@@ -1,4 +1,11 @@
+Overview
+========
+
 sodium is designed to be a dvd cover art viewer and movie launcher. 
+
+
+Usage
+=====
 
 Basic usage is: sodium /path/to/images size [/path/to/videos]
 
@@ -69,6 +76,23 @@ directory.
 The mapping file should be called .movie-list and placed in the same location
 as the images being displayed.
 
+
+Animation
+=========
+
+When the mouse moves an image, the image will start rotating. Clicking it will
+stop it rotating and launch the movie.
+
+You can disable the animation by setting the SODIUM_ANIMATION environment
+variable to 0. e.g
+
+	$ export SODIUM_ANIMATION=0
+or
+	$ SODIUM_ANIMATION=0 sodium <args ...>
+
+
+License
+=======
 
 Sodium is licensed under the terms of the GPLv2. See the COPYING file.
 

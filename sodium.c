@@ -151,11 +151,10 @@ static void process_directory(const gchar *name)
 		if (is_supported_img(entry->d_name)) {
 			fname = g_strdup(entry->d_name);
 			printf("Adding image %s to list\n", fname);
-			g_ptr_array_add(files, (gpointer) fname);
+			g_ptr_array_add(files, (gpointer)fname);
 			nfiles++;		
 		}
     	}
-
 	closedir(dir);
 
 	g_ptr_array_sort(files, compare_string);
@@ -446,7 +445,6 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	char movie[120];
 	char cmd[120];
 	char args[120] = "\0";
-
 	static FILE *fp;
 
 	printf("Opening movie list: (%s)\n", movie_list);
@@ -643,4 +641,3 @@ int main(int argc, char *argv[])
 
 	exit(0);
 }
-

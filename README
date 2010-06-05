@@ -80,8 +80,8 @@ as the images being displayed.
 Animation
 =========
 
-When the mouse moves an image, the image will start rotating. Clicking it will
-stop it rotating and launch the movie.
+When the mouse moves over an image, the image will start rotating. Clicking
+it will launch the movie.
 
 You can disable the animation by setting the SODIUM_ANIMATION environment
 variable to 0. e.g

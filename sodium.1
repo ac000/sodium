@@ -1,0 +1,48 @@
+.TH SODIUM 1 "September 30, 2010" 
+.SH NAME 
+sodium - DVD cover art viewer & movie launcher
+
+.SH SYNOPSIS 
+sodium <image path> <size> [video path]
+
+.SH DESCRIPTION 
+Browse a directory of images which can be linked to movies to launch them.
+
+.TP
+.B image path
+The path to the directory that contains the images to view
+.TP
+.B size
+The size in pixels of the viewer window to create. Must be a multiple of 300
+and at least 300.
+.TP
+.B video path
+An optional path to the location where the videos are stored. This acts like a
+base path and you can have any sort of tree under it.
+
+.SH FILES
+You can optionally create a file called \fB.movie-list\fR in the images
+directory. This is a mapping file that maps images to movies and takes the
+form:-
+
+.RS
+image|movie|player|args
+.RE
+
+e.g
+
+.RS
+taken.jpg|action/Taken.mkv|totem|--fullscreen
+.RE
+
+The movie path can be relative to the video path if given at runtime. Or it
+can be absolute. You can specify multiple paths in there.
+
+The file must end with a blank line.
+
+.SH SOURCE
+Source available at http://github.com/ac000/sodium under the GNU GPLv2
+
+.SH AUTHORS
+Andrew Clayton <andrew@andrew@digital-domain.net>
+

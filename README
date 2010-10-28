@@ -1,7 +1,7 @@
 Overview
 ========
 
-sodium is designed to be a dvd cover art viewer and movie launcher. 
+sodium is designed to be a dvd cover art viewer and movie launcher.
 
 
 Usage
@@ -33,15 +33,15 @@ You can navigate via the following:
 	1 to 9				Select Video
 
 You can also scroll with the mouse wheel. NOTE: Mouse scroll events are limited
-to 1 scroll event every 750ms to prevent over scrolling on devices such as 
+to 1 scroll event every 750ms to prevent over scrolling on devices such as
 trackpads.
 
-You can also click on an image or press 1..9 (telephone layout) to have the 
-video for that played (if it's available). Currently this is managed through 
-a mapping file that maps image names to video names and the player to use and 
+You can also click on an image or press 1..9 (telephone layout) to have the
+video for that played (if it's available). Currently this is managed through
+a mapping file that maps image names to video names and the player to use and
 the arguments to pass to the player. 
 
-It takes the form of a pipe (|) seperated fields flat file, e.g one entry 
+It takes the form of a pipe (|) seperated fields flat file, e.g one entry
 would look like:
 
 	taken.jpg|action/Taken.mkv|xine|-f
@@ -51,7 +51,7 @@ action/Taken.mkv 	is the relative path to the video
 xine			is the command to lauch to play the video
 -f			is the arguments to pass to the video player
 
-When specifing a relative path you have to pass the optional /path/to/videos 
+When specifing a relative path you have to pass the optional /path/to/videos
 argument that is the top level directory where the videos are held. NOTE: you
 can only pass in one of these.
 
@@ -63,14 +63,14 @@ e.g
 half_past_dead-half_past_dead_2.jpg|action/Half_Past_Dead.mkv action/Half_Past_Dead_2.mkv|xine|-f
 
 Again these paths can either be relative or absolute. Both paths will be passed
-to the launched command. This is perhaps useful where you have a box set 
+to the launched command. This is perhaps useful where you have a box set
 containing a number of movies.
 
 If you have a box set of a series for example. You can do something like
 
 24_season_4.jog|series/24/Season_4/|nautilus|
 
-which would bring up a nautilus window showing the contents of the Season_4 
+which would bring up a nautilus window showing the contents of the Season_4
 directory.
 
 The mapping file should be called .movie-list and placed in the same location
@@ -95,4 +95,3 @@ License
 =======
 
 Sodium is licensed under the terms of the GPLv2. See the COPYING file.
-

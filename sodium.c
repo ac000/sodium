@@ -37,7 +37,7 @@
 #define HME		2
 #define END		3
 
-/* Thresh hold for time difference in ms between scroll events */ 
+/* Thresh hold for time difference in ms between scroll events */
 #define SCROLL_THRESH	750
 
 int animation = 1;	/* Animation default to enabled */
@@ -194,7 +194,7 @@ static void load_images(ClutterActor *stage, int direction)
 			else
 				array_pos -= GRID_SIZE * 2;
 		}
-	} else if ((direction == FWD && array_pos >= nfiles) || 
+	} else if ((direction == FWD && array_pos >= nfiles) ||
 							direction == HME) {
 		/* Loop round to beginning of images */
 		array_pos = 0;
@@ -216,10 +216,10 @@ static void load_images(ClutterActor *stage, int direction)
 		if (r == ROW_SIZE || i == nfiles)
                         break;
 
-		printf("Loading image: %s\n", 
-					(char *) g_ptr_array_index(files, i));
-		img = clutter_texture_new_from_file(g_ptr_array_index(files, i),
-									NULL);
+		printf("Loading image: %s\n",
+					(char *)g_ptr_array_index(files, i));
+		img = clutter_texture_new_from_file(g_ptr_array_index(
+							files, i), NULL);
 		clutter_actor_set_size(img, image_size, image_size);
 		clutter_actor_set_position(img, x, y);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
@@ -326,7 +326,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		setd = clutter_event_get_time(event) - pset;
 		printf("pset = (%d), setd = (%d)\n", pset, setd);
 
-		if (event->scroll.direction == CLUTTER_SCROLL_UP && 
+		if (event->scroll.direction == CLUTTER_SCROLL_UP &&
 							setd > SCROLL_THRESH) {
 			printf("Scroll Up @ (%u)\n",
 						clutter_event_get_time(event));
@@ -376,7 +376,7 @@ static int which_image(ClutterActor *stage, int x, int y)
 {
 	int img_no = 0;
 
-	printf("array_pos = %d, loaded_images = %d\n", array_pos, 
+	printf("array_pos = %d, loaded_images = %d\n", array_pos,
 								loaded_images);
 
 	/* 
@@ -387,39 +387,39 @@ static int which_image(ClutterActor *stage, int x, int y)
 	if (x >= 0 && x <= image_size && y >= 0 && y <= image_size) {
 		img_no = 1;
 		printf("Image 1\n");
-	} else if (x >= image_size + 1 && x <= image_size * 2 && 
+	} else if (x >= image_size + 1 && x <= image_size * 2 &&
 						y >= 0 && y <= image_size) {
 		img_no = 2;
 		printf("Image 2\n");
-	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 && 
+	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 &&
 						y >= 0 && y <= image_size) {
 		img_no = 3;
 		printf("Image 3\n");
-	} else if (x >= 0 && x <= image_size && y >= image_size + 1 && 
+	} else if (x >= 0 && x <= image_size && y >= image_size + 1 &&
 							y <= image_size * 2) {
 		img_no = 4;
 		printf("Image 4\n");
-	} else if (x >= image_size + 1 && x <= image_size * 2 && 
+	} else if (x >= image_size + 1 && x <= image_size * 2 &&
 				y >= image_size + 1 && y <= image_size * 2) {
 		img_no = 5;
 		printf("Image 5\n");
-	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 && 
+	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 &&
 				y >= image_size + 1 && y <= image_size * 2) {
 		img_no = 6;
 		printf("Image 6\n");
-	} else if (x >= 0 && x <= image_size && y >= image_size * 2 + 1 && 
+	} else if (x >= 0 && x <= image_size && y >= image_size * 2 + 1 &&
 							y <= image_size * 3) {
 		img_no = 7;
 		printf("Image 7\n");
-	} else if (x >= image_size + 1 && x <= image_size * 2 && 
+	} else if (x >= image_size + 1 && x <= image_size * 2 &&
 			y >= image_size * 2 + 1 && y <= image_size * 3) {
 		img_no = 8;
 		printf("Image 8\n");
-	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 && 
+	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 &&
 			y >= image_size * 2 + 1 && y <= image_size * 3) {
 		img_no = 9;
 		printf("Image 9\n");
-	} 
+	}
 
 	return img_no;
 }
@@ -429,7 +429,7 @@ static void lookup_image(ClutterActor *stage, int img_no)
 	char *image;
 
 	if (img_no <= loaded_images) {
-		image = g_ptr_array_index(files, 
+		image = g_ptr_array_index(files,
 					array_pos - loaded_images + img_no - 1);
 		lookup_video(stage, image);
 	} else {
@@ -532,7 +532,7 @@ static void play_video(gchar **argv)
 	} else if (pid == 0) {
 		/* child */
 		execvp(argv[0], argv);
-	}		
+	}
 }
 
 /* Display a "No Video" message for images with no video yet */
@@ -541,7 +541,7 @@ static void no_video_notice(ClutterActor *stage)
 	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
 	label = clutter_text_new_full("Sans 32", "No Video", &actor_color);
-	clutter_actor_set_position(label, image_size, 
+	clutter_actor_set_position(label, image_size,
 						image_size + 0.5 * image_size);
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);
 	clutter_actor_show(label);
@@ -572,7 +572,7 @@ static void display_usage()
 	printf("video_directory is an optional directory where videos are ");
 	printf("stored. Videos listed in the .movie-list file should be ");
 	printf("given relative to this path.\n");
-	
+
 	exit(-1);
 }
 
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
 	struct sigaction action;
 	char *e_animation;
 
-	if (argc < 3) 
+	if (argc < 3)
 		display_usage();
 
 	if ((e_animation = getenv("SODIUM_ANIMATION")))
@@ -627,10 +627,10 @@ int main(int argc, char *argv[])
 	g_object_set(stage, "cursor-visible", TRUE, NULL);
 	clutter_actor_set_name(stage, "stage");
 	clutter_actor_show(stage);
-	
+
 	process_directory(image_path);
 	load_images(stage, FWD);
-	
+
 	/* Handle keyboard/mouse events */
 	g_signal_connect(stage, "event", G_CALLBACK(input_events_cb), NULL);
 

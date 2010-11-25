@@ -165,7 +165,10 @@ static void load_images(ClutterActor *stage, int direction)
 {
         ClutterActor *img;
 	int i; 
-	int x = 0, y = 0, c = 0, r = 0;
+	int x = 0;
+	int y = 0;
+	int c = 0;		/* column */
+	int r = 0;		/* row */
 	char image_name[5];	/* i_NN */
 
 	if (direction == BWD || direction == END) {

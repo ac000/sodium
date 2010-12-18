@@ -49,7 +49,7 @@ int array_pos = 0; 	/* Current position in file list array */
 int nfiles = 0;		/* Number of files loaded into file list array */
 int loaded_images = 0;	/* How many images are currently shown on screen */
 char image_path[255]; 	/* Location of images passed in as argv[1] */
-char movie_list[255]; 	/* Path to .movie-list mapping file */
+char *movie_list; 	/* Path to movie-list mapping file */
 char movie_base_path[255];	/* Path to base directory containing videos */
 int window_size; 	/* Size of the window */
 int image_size; 	/* Size of the image */
@@ -550,6 +550,25 @@ static void no_video_notice(ClutterActor *stage)
 	clutter_actor_show(label);
 }
 
+/* Set the path for the movie-list mapping file */
+static void get_movie_list_path(char *home)
+{
+	if (!home) {
+		printf("Unable to set the path for the movie-list.\n");
+		printf("Please ensure $HOME is set.\n");
+		exit(-1);
+	}
+
+	/*
+	 * Malloc enough space for the movie-list path
+	 * $HOME + /.config/sodium/movie-list
+	 */
+	movie_list = malloc(sizeof(char *) * strlen(home) + 27);
+	strcpy(movie_list, home);
+	strcat(movie_list, "/.config/sodium/movie-list");
+	printf("Movie list path: %s\n", movie_list);
+}
+
 /* Setup the window and image size dimensions */
 static void set_dimensions(char *size)
 {
@@ -573,7 +592,7 @@ static void display_usage()
 	printf("size is the size of the window to display in pixels. It ");
 	printf("must be at least 300 and also be a multiple of 300.\n\n");
 	printf("video_directory is an optional directory where videos are ");
-	printf("stored. Videos listed in the .movie-list file should be ");
+	printf("stored. Videos listed in the movie-list file should be ");
 	printf("given relative to this path.\n");
 
 	exit(-1);
@@ -617,9 +636,7 @@ int main(int argc, char *argv[])
 	} 
 
 	strncpy(image_path, argv[1], 240);
-
-	strcpy(movie_list, image_path);
-	strcat(movie_list, "/.movie-list");
+	get_movie_list_path(getenv("HOME"));
 
 	clutter_init(&argc, &argv);
 
@@ -641,6 +658,8 @@ int main(int argc, char *argv[])
 		animate_image_setup();
 
 	clutter_main();
+
+	free(movie_list);
 
 	exit(0);
 }

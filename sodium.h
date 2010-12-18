@@ -25,6 +25,7 @@ static void lookup_video(ClutterActor *stage, char *actor);
 static void build_exec_cmd(char *cmd, char *args, char *movie);
 static void play_video(gchar **argv);
 static void no_video_notice(ClutterActor *stage);
+static void get_movie_list_path(char *home);
 static void set_dimensions(char *size);
 static void display_usage();
 static int compare_string(const void *p1, const void *p2);

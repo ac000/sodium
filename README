@@ -73,8 +73,8 @@ If you have a box set of a series for example. You can do something like
 which would bring up a nautilus window showing the contents of the Season_4
 directory.
 
-The mapping file should be called .movie-list and placed in the same location
-as the images being displayed.
+The mapping file should be called movie-list and placed under
+~/.config/sodium/
 
 
 Animation

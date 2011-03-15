@@ -563,7 +563,7 @@ static void get_movie_list_path(char *home)
 	 * Malloc enough space for the movie-list path
 	 * $HOME + /.config/sodium/movie-list
 	 */
-	movie_list = malloc(sizeof(char *) * strlen(home) + 27);
+	movie_list = malloc(strlen(home) + 27);
 	strcpy(movie_list, home);
 	strcat(movie_list, "/.config/sodium/movie-list");
 	printf("Movie list path: %s\n", movie_list);

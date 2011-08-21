@@ -9,6 +9,7 @@
  *
  */
 
+#define _XOPEN_SOURCE 500
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <string.h>
+#include <signal.h>
 
 #include <clutter/clutter.h>
 #include <glib.h>

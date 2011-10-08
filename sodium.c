@@ -47,9 +47,9 @@ GPtrArray *files;	/* Array to hold image filenames */
 int array_pos = 0; 	/* Current position in file list array */
 int nfiles = 0;		/* Number of files loaded into file list array */
 int loaded_images = 0;	/* How many images are currently shown on screen */
-char image_path[255]; 	/* Location of images passed in as argv[1] */
+char image_path[PATH_MAX]; 	/* Location of images passed in as argv[1] */
 char *movie_list; 	/* Path to movie-list mapping file */
-char movie_base_path[255];	/* Path to base directory containing videos */
+char movie_base_path[PATH_MAX];	/* Path to base directory containing videos */
 int window_size; 	/* Size of the window */
 int image_size; 	/* Size of the image */
 
@@ -631,12 +631,12 @@ int main(int argc, char *argv[])
 	set_dimensions(argv[2]);
 
 	/* Setup the video path if supplied */
-	if (argc == 4) {
-		strncpy(movie_base_path, argv[3], 120);
-		strcat(movie_base_path, "/");
-	}
+	if (argc == 4)
+		snprintf(movie_base_path, sizeof(movie_base_path), "%s/",
+								argv[3]);
 
-	strncpy(image_path, argv[1], 240);
+	snprintf(image_path, sizeof(image_path), "%s", argv[1]);
+
 	get_movie_list_path(getenv("HOME"));
 
 	clutter_init(&argc, &argv);

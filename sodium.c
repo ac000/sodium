@@ -24,6 +24,8 @@
 #include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#define SODIUM_VERSION	"003"
+
 /* Image grid dimentions */
 #define GRID_SIZE	9
 #define ROW_SIZE	3

@@ -1,5 +1,5 @@
 Name:		sodium
-Version:	002
+Version:	003
 Release:	1%{?dist}
 Summary:	GUI DVD cover art browser and movie launcher
 
@@ -41,6 +41,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Oct 08 2011 Andrew Clayton <andrew@digital-domain.net> - 003-1
+- Some clean ups and fox's
+
 * Sat Dec 18 2010 Andrew Clayton <andrew@digital-domain.net> - 002-1
 - Change the location of the movie-list mapping file
 

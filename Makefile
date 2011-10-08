@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -std=c99 -O2
+CFLAGS=-Wall -g -std=c99 -O2
 LIBS=`pkg-config --libs clutter-1.0 glib-2.0`
 INCS=`pkg-config --cflags clutter-1.0 glib-2.0`
 

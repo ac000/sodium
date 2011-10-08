@@ -39,6 +39,8 @@
 /* Thresh hold for time difference in ms between scroll events */
 #define SCROLL_THRESH	750
 
+#define BUF_SIZE	4096
+
 int animation = 1;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
@@ -211,44 +213,42 @@ static void play_video(gchar **argv)
 /* Build the command and arguments to be exec'd */
 static void build_exec_cmd(char *cmd, char *args, char *movie)
 {
-	char video_paths[1024] = "\0";
-	char buf[512] = "\0";
+	char video_paths[BUF_SIZE] = "\0";
+	char buf[BUF_SIZE] = "\0";
 	gchar **argv = NULL;
-	gchar **videos = NULL;
 
 	/* Build up a string that will be parsed into an argument list */
-	strcpy(buf, cmd);
-	strcat(buf, " ");
-	strcat(buf, args);
-	strcat(buf, " ");
+	snprintf(buf, BUF_SIZE, "%s %s ", cmd, args);
 
-	/* Cater for multiple space seperated video paths to be specified */
+	/* Cater for multiple space seprarated video paths to be specified */
 	if (strstr(movie, " ")) {
-		videos = g_strsplit(movie, " ", -1);
+		gchar **videos = NULL;
+
+		videos = g_strsplit(movie, " ", 0);
 		while (*videos != NULL) {
 			/*
 			 * Cater for either absolute or relative paths
 			 * for videos.
 			 */
-			if (*videos[0] != '/') {
-				strcat(video_paths, movie_base_path);
-				strcat(video_paths, *videos++);
-			} else {
-				strcat(video_paths, *videos++);
-			}
+			if (*videos[0] != '/')
+				strncat(video_paths, movie_base_path,
+					BUF_SIZE - strlen(video_paths));
 
-			strcat(video_paths, " ");
+			strncat(video_paths, *videos++,
+					BUF_SIZE - strlen(video_paths));
+			strncat(video_paths, " ",
+					BUF_SIZE - strlen(video_paths));
 		}
 	} else {
-		if (movie[0] == '/') {
-			strcpy(video_paths, movie);
-		} else {
-			strcpy(video_paths, movie_base_path);
-			strcat(video_paths, movie);
-		}
+		if (movie[0] != '/')
+			strncat(video_paths, movie_base_path,
+					BUF_SIZE - strlen(video_paths));
+
+		strncat(video_paths, movie,
+					BUF_SIZE - strlen(video_paths));
 	}
 
-	strcat(buf, video_paths);
+	strncat(buf, video_paths, BUF_SIZE - strlen(buf));
 	/* Split buf up into a vector array for passing to execvp */
 	g_shell_parse_argv(buf, NULL, &argv, NULL);
 
@@ -257,14 +257,21 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 	play_video(argv);
 }
 
-/* Lookup the clicked image in the .movie-list file */
+/*
+ * Lookup the clicked image in the .movie-list file.
+ *
+ * Reads in the movie file list and splits each line up into its
+ * fields as:
+ *
+ *	fields[0] : image
+ *	fields[1] : movie
+ *	fields[2] : command
+ *	fields[3] : command arguments
+ */
 static void lookup_video(ClutterActor *stage, char *actor)
 {
-	char string[512];
-	char image[120];
-	char movie[120];
-	char cmd[120];
-	char args[120] = "\0";
+	char buf[BUF_SIZE];
+	char **fields = NULL;
 	static FILE *fp;
 
 	printf("Opening movie list: (%s)\n", movie_list);
@@ -273,22 +280,21 @@ static void lookup_video(ClutterActor *stage, char *actor)
 		exit(-1);
 	}
 
-	while (fgets(string, 512, fp)) {
-		sscanf(string, "%119[^|]|%119[^|]|%119[^|]|%119[^\n]",
-						image, movie, cmd, args);
-		if (strcmp(actor, image) == 0) {
-			fclose(fp);
-			build_exec_cmd(cmd, args, movie);
-			return;
+	while (fgets(buf, BUF_SIZE, fp)) {
+		fields = g_strsplit(buf, "|", 0);
+		if (strcmp(actor, fields[0]) == 0) {
+			build_exec_cmd(fields[2], fields[3], fields[1]);
+			goto out;
 		}
-
-		args[0] = '\0';
 	}
 
 	/* If we get to here, we didn't find a video */
-	fclose(fp);
 	printf("No video for (%s)\n", actor);
 	no_video_notice(stage);
+
+out:
+	fclose(fp);
+	g_strfreev(fields);
 }
 
 static void lookup_image(ClutterActor *stage, int img_no)

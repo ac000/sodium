@@ -222,7 +222,7 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 	/* Build up a string that will be parsed into an argument list */
 	snprintf(buf, BUF_SIZE, "%s %s ", cmd, args);
 
-	/* Cater for multiple space seprarated video paths to be specified */
+	/* Cater for multiple space separated video paths to be specified */
 	if (strstr(movie, " ")) {
 		gchar **videos = NULL;
 

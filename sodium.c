@@ -630,7 +630,6 @@ int main(int argc, char *argv[])
 		animation = atoi(e_animation);
 
 	/* Setup signal handler to reap child pids */
-	memset(&action, 0, sizeof(&action));
 	sigemptyset(&action.sa_mask);
 	action.sa_handler = reaper;
 	action.sa_flags = SA_RESTART;

@@ -163,7 +163,8 @@ static void process_directory(const gchar *name)
 	struct dirent *entry;
 	char *fname;
 
-	if (!(dir = opendir(name))) {
+	dir = opendir(name);
+	if (!dir) {
 		printf("Can't open images directory (%s)\n", name);
 		exit(-1);
 	}
@@ -277,7 +278,8 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	static FILE *fp;
 
 	printf("Opening movie list: (%s)\n", movie_list);
-	if (!(fp = fopen(movie_list, "r"))) {
+	fp = fopen(movie_list, "r");
+	if (!fp) {
 		printf("Can't open movie list: (%s)\n", movie_list);
 		exit(-1);
 	}
@@ -626,7 +628,8 @@ int main(int argc, char *argv[])
 	if (argc < 3)
 		display_usage();
 
-	if ((e_animation = getenv("SODIUM_ANIMATION")))
+	e_animation = getenv("SODIUM_ANIMATION");
+	if (e_animation)
 		animation = atoi(e_animation);
 
 	/* Setup signal handler to reap child pids */

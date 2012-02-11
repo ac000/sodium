@@ -69,7 +69,7 @@ static void display_usage()
 	printf("stored. Videos listed in the movie-list file should be ");
 	printf("given relative to this path.\n");
 
-	exit(-1);
+	exit(EXIT_FAILURE);
 }
 
 /* Reap child pids */
@@ -166,7 +166,7 @@ static void process_directory(const gchar *name)
 	dir = opendir(name);
 	if (!dir) {
 		printf("Can't open images directory (%s)\n", name);
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
 	printf("Opening directory: %s\n", name);
@@ -281,7 +281,7 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	fp = fopen(movie_list, "r");
 	if (!fp) {
 		printf("Can't open movie list: (%s)\n", movie_list);
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
 	while (fgets(buf, BUF_SIZE, fp)) {
@@ -589,7 +589,7 @@ static void get_movie_list_path(char *home)
 	if (!home) {
 		printf("Unable to set the path for the movie-list.\n");
 		printf("Please ensure $HOME is set.\n");
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
 	/*
@@ -677,5 +677,5 @@ int main(int argc, char *argv[])
 
 	free(movie_list);
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 }

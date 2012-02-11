@@ -624,6 +624,7 @@ int main(int argc, char *argv[])
 				{ "sodium - DVD Cover Art Viewer / Player" };
 	struct sigaction action;
 	char *e_animation;
+	int ci;
 
 	if (argc < 3)
 		display_usage();
@@ -649,7 +650,11 @@ int main(int argc, char *argv[])
 
 	get_movie_list_path(getenv("HOME"));
 
-	clutter_init(&argc, &argv);
+	ci = clutter_init(&argc, &argv);
+	if (ci < 0) {
+		perror("clutter_init");
+		exit(EXIT_FAILURE);
+	}
 
 	stage = clutter_stage_get_default();
 	clutter_actor_set_size(stage, window_size, window_size);

@@ -1,5 +1,5 @@
 /*
- * sodium.c 
+ * sodium.c
  *
  * DVD cover art viewer / player
  *
@@ -48,14 +48,14 @@ int animation = 1;	/* Animation default to enabled */
 ClutterActor *label;
 ClutterBehaviour *behaviour;
 GPtrArray *files;	/* Array to hold image filenames */
-int array_pos = 0; 	/* Current position in file list array */
+int array_pos = 0;	/* Current position in file list array */
 int nfiles = 0;		/* Number of files loaded into file list array */
 int loaded_images = 0;	/* How many images are currently shown on screen */
-char image_path[PATH_MAX]; 	/* Location of images passed in as argv[1] */
-char *movie_list; 	/* Path to movie-list mapping file */
+char image_path[PATH_MAX];	/* Location of images passed in as argv[1] */
+char *movie_list;		/* Path to movie-list mapping file */
 char movie_base_path[PATH_MAX];	/* Path to base directory containing videos */
-int window_size; 	/* Size of the window */
-int image_size; 	/* Size of the image */
+int window_size;	/* Size of the window */
+int image_size;		/* Size of the image */
 
 /* Display a help/usage summary */
 static void display_usage()
@@ -132,12 +132,12 @@ static void reset_image(ClutterActor *actor)
 /* Function to help sort the files list array */
 static int compare_string(const void *p1, const void *p2)
 {
-	/* 
+	/*
 	 * Function used from the qsort(3) man page
 	 *
 	 * The actual arguments to this function are "pointers to
 	 * pointers to char", but strcmp(3) arguments are "pointers
-	 * to char", hence the following cast plus dereference 
+	 * to char", hence the following cast plus dereference
 	 */
 
 	return strcmp(*(char * const *)p1, *(char * const *)p2);
@@ -179,7 +179,7 @@ static void process_directory(const gchar *name)
 			g_ptr_array_add(files, (gpointer)fname);
 			nfiles++;
 		}
-    	}
+	}
 	closedir(dir);
 
 	g_ptr_array_sort(files, compare_string);
@@ -369,8 +369,8 @@ static int which_image(ClutterActor *stage, int x, int y)
 /* Load images onto stage */
 static void load_images(ClutterActor *stage, int direction)
 {
-        ClutterActor *img;
-	int i; 
+	ClutterActor *img;
+	int i;
 	int x = 0;
 	int y = 0;
 	int c = 0;		/* column */
@@ -389,7 +389,7 @@ static void load_images(ClutterActor *stage, int direction)
 			 */
 			if (nfiles % GRID_SIZE == 0)
 				array_pos = nfiles - GRID_SIZE;
-			else 
+			else
 				array_pos = nfiles - (nfiles % GRID_SIZE);
 		} else {
 			/*
@@ -409,7 +409,7 @@ static void load_images(ClutterActor *stage, int direction)
 		array_pos = 0;
 	}
 
-	/* How many images are on screen */	
+	/* How many images are on screen */
 	loaded_images = 0;
 
 	/*
@@ -423,7 +423,7 @@ static void load_images(ClutterActor *stage, int direction)
 
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		if (r == ROW_SIZE || i == nfiles)
-                        break;
+			break;
 
 		printf("Loading image: %s\n",
 					(char *)g_ptr_array_index(files, i));
@@ -453,7 +453,7 @@ static void load_images(ClutterActor *stage, int direction)
 		loaded_images++;
 		/*printf("c = %d, r = %d, x = %d, y = %d, array_pos = %d\n",
 						c, r, x, y, array_pos);*/
-        }
+	}
 }
 
 /* Process keyboard/mouse events */

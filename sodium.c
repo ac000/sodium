@@ -278,7 +278,7 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	static FILE *fp;
 
 	printf("Opening movie list: (%s)\n", movie_list);
-	fp = fopen(movie_list, "r");
+	fp = fopen(movie_list, "re");
 	if (!fp) {
 		printf("Can't open movie list: (%s)\n", movie_list);
 		exit(EXIT_FAILURE);

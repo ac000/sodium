@@ -92,7 +92,7 @@ static void animate_image_setup()
 	ClutterTimeline *timeline;
 	ClutterAlpha *alpha;
 
-	timeline = clutter_timeline_new(5000 /* milliseconds */);
+	timeline = clutter_timeline_new(5000); /* ms */
 	clutter_timeline_set_loop(timeline, TRUE);
 	clutter_timeline_start(timeline);
 	alpha = clutter_alpha_new_with_func(timeline, &on_alpha, NULL, NULL);

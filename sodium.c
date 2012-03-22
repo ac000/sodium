@@ -58,7 +58,7 @@ int window_size;	/* Size of the window */
 int image_size;		/* Size of the image */
 
 /* Display a help/usage summary */
-static void display_usage()
+static void display_usage(void)
 {
 	printf("\nUsage: sodium image_directory size [video_directory]\n\n");
 	printf("Where image_directory is the path to the location of the ");
@@ -87,7 +87,7 @@ static gdouble on_alpha(ClutterAlpha *alpha, gpointer data)
 	return clutter_timeline_get_progress(timeline);
 }
 
-static void animate_image_setup()
+static void animate_image_setup(void)
 {
 	ClutterTimeline *timeline;
 	ClutterAlpha *alpha;

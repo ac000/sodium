@@ -27,6 +27,7 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 install -Dp -m0755 sodium $RPM_BUILD_ROOT/%{_bindir}/sodium
 install -Dp -m0644 sodium.1.gz $RPM_BUILD_ROOT/%{_mandir}/man1/sodium.1.gz
+install -Dp -m0644 sodium.png $RPM_BUILD_ROOT/%{_datarootdir}/pixmaps/sodium.png
 
 
 %clean
@@ -38,6 +39,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc README COPYING
 %{_bindir}/sodium
 %{_mandir}/man1/sodium.1.gz
+%{_datarootdir}/pixmaps/sodium.png
 
 
 %changelog

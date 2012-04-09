@@ -44,7 +44,7 @@
 
 #define BUF_SIZE	4096
 
-int animation = 1;	/* Animation default to enabled */
+bool animation = true;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
 ClutterBehaviour *behaviour;

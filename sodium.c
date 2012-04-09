@@ -19,6 +19,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <signal.h>
+#include <stdbool.h>
 
 #include <clutter/clutter.h>
 #include <glib.h>
@@ -462,7 +463,7 @@ static void load_images(ClutterActor *stage, int direction)
 static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 							gpointer user_data)
 {
-	static int cur_toggle = 1;	/* Cursor is defaulted to visible */
+	static bool cur_enabled = true;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
 	gfloat x = 0.0;
@@ -492,14 +493,14 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			load_images(stage, END);
 			break;
 		case CLUTTER_c:
-			if (!cur_toggle) {
+			if (!cur_enabled) {
 				g_object_set(stage, "cursor-visible", TRUE,
 									NULL);
-				cur_toggle = 1;
+				cur_enabled = true;
 			} else {
 				g_object_set(stage, "cursor-visible", FALSE,
 									NULL);
-				cur_toggle = 0;
+				cur_enabled = false;
 			}
 			break;
 		case CLUTTER_1:

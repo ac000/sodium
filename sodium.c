@@ -76,9 +76,7 @@ static void display_usage(void)
 /* Reap child pids */
 static void reaper(int signo)
 {
-	int status;
-
-	wait(&status);
+	wait(NULL);
 }
 
 static gdouble on_alpha(ClutterAlpha *alpha, gpointer data)

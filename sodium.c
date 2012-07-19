@@ -207,8 +207,14 @@ static void play_video(gchar **argv)
 		/* parent */
 		g_strfreev(argv);
 	} else if (pid == 0) {
+		int err;
 		/* child */
-		execvp(argv[0], argv);
+		err = execvp(argv[0], argv);
+		if (err == -1) {
+			fprintf(stderr, "ERROR: Could not exec %s\n",
+				argv[0]);
+			_exit(EXIT_FAILURE);
+		}
 	}
 }
 

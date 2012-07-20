@@ -185,8 +185,14 @@ static void process_directory(const gchar *name)
 	g_ptr_array_sort(files, compare_string);
 }
 
+static void hide_label(void)
+{
+	if (CLUTTER_ACTOR_IS_VISIBLE(label))
+		clutter_actor_hide(label);
+}
+
 /* Display a "No Video" message for images with no video yet */
-static void no_video_notice(ClutterActor *stage)
+static void create_no_video_label(ClutterActor *stage)
 {
 	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
@@ -194,7 +200,8 @@ static void no_video_notice(ClutterActor *stage)
 	clutter_actor_set_position(label, image_size,
 			image_size + 0.5 * image_size);
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);
-	clutter_actor_show(label);
+	clutter_actor_raise_top(label);
+	clutter_actor_hide(label);
 }
 
 /* fork/exec the movie */
@@ -299,7 +306,7 @@ static void lookup_video(ClutterActor *stage, char *actor)
 
 	/* If we get to here, we didn't find a video */
 	printf("No video for (%s)\n", actor);
-	no_video_notice(stage);
+	clutter_actor_show(label);
 
 out:
 	fclose(fp);
@@ -376,12 +383,18 @@ static int which_image(ClutterActor *stage, int x, int y)
 static void load_images(ClutterActor *stage, int direction)
 {
 	ClutterActor *img;
+	static ClutterActor *images = NULL;
 	int i;
 	int x = 0;
 	int y = 0;
 	int c = 0;		/* column */
 	int r = 0;		/* row */
 	char image_name[5];	/* i_NN */
+
+	if (!images) {
+		images = clutter_group_new();
+		clutter_container_add_actor(CLUTTER_CONTAINER(stage), images);
+	}
 
 	if (direction == BWD || direction == END) {
 		if (array_pos <= GRID_SIZE || direction == END) {
@@ -425,7 +438,7 @@ static void load_images(ClutterActor *stage, int direction)
 	 * GRID_SIZE images to view you don't get the previous
 	 * images still vivisble.
 	 */
-	clutter_group_remove_all(CLUTTER_GROUP(stage));
+	clutter_group_remove_all(CLUTTER_GROUP(images));
 
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		if (r == ROW_SIZE || i == nfiles)
@@ -437,7 +450,7 @@ static void load_images(ClutterActor *stage, int direction)
 					files, i), NULL);
 		clutter_actor_set_size(img, image_size, image_size);
 		clutter_actor_set_position(img, x, y);
-		clutter_container_add_actor(CLUTTER_CONTAINER(stage), img);
+		clutter_container_add_actor(CLUTTER_CONTAINER(images), img);
 		clutter_actor_show(img);
 		sprintf(image_name, "i_%.2d", loaded_images + 1);
 		clutter_actor_set_name(img, image_name);
@@ -480,6 +493,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 	case CLUTTER_KEY_PRESS: {
 		guint sym = clutter_event_get_key_symbol(event);
 
+		hide_label();
 		switch (sym) {
 		case CLUTTER_Page_Up:
 		case CLUTTER_Up:
@@ -556,7 +570,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		pset = clutter_event_get_time(event);
 		break;
 	case CLUTTER_BUTTON_PRESS:
-		clutter_actor_hide(label);
+		hide_label();
 		break;
 	case CLUTTER_BUTTON_RELEASE:
 		actor = clutter_event_get_source(event);
@@ -670,6 +684,8 @@ int main(int argc, char *argv[])
 
 	process_directory(image_path);
 	load_images(stage, FWD);
+
+	create_no_video_label(stage);
 
 	/* Handle keyboard/mouse events */
 	g_signal_connect(stage, "event", G_CALLBACK(input_events_cb), NULL);

@@ -464,7 +464,7 @@ static void load_images(ClutterActor *stage, int direction)
 
 /* Process keyboard/mouse events */
 static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
-							gpointer user_data)
+			    gpointer user_data)
 {
 	static bool cur_enabled = true;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */

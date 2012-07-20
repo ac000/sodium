@@ -197,8 +197,7 @@ static void create_no_video_label(ClutterActor *stage)
 	ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 
 	label = clutter_text_new_full("Sans 32", "No Video", &actor_color);
-	clutter_actor_set_position(label, image_size,
-			image_size + 0.5 * image_size);
+	clutter_actor_set_position(label, image_size * 1.25, window_size / 2);
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);
 	clutter_actor_raise_top(label);
 	clutter_actor_hide(label);

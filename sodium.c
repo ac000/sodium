@@ -20,6 +20,7 @@
 #include <string.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #include <clutter/clutter.h>
 #include <glib.h>
@@ -43,6 +44,9 @@
 #define SCROLL_THRESH	750
 
 #define BUF_SIZE	4096
+
+/* Macro to check if a given actor is an image */
+#define IS_IMAGE(actor)	((isdigit(actor[0])) ? 1 : 0)
 
 bool animation = true;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
@@ -325,59 +329,6 @@ static void lookup_image(ClutterActor *stage, int img_no)
 	}
 }
 
-/* Determine which image on the grid was clicked. */
-static int which_image(ClutterActor *stage, int x, int y)
-{
-	int img_no = 0;
-
-	printf("array_pos = %d, loaded_images = %d\n", array_pos,
-		loaded_images);
-
-	/*
-	 * Images are layed out in a 3 x 3 grid from left to right
-	 * top to bottom. I.e image 1 is the top left image and image 9
-	 * is the bottom right image.
-	 */
-	if (x >= 0 && x <= image_size && y >= 0 && y <= image_size) {
-		img_no = 1;
-		printf("Image 1\n");
-	} else if (x >= image_size + 1 && x <= image_size * 2 &&
-			y >= 0 && y <= image_size) {
-		img_no = 2;
-		printf("Image 2\n");
-	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 &&
-			y >= 0 && y <= image_size) {
-		img_no = 3;
-		printf("Image 3\n");
-	} else if (x >= 0 && x <= image_size && y >= image_size + 1 &&
-			y <= image_size * 2) {
-		img_no = 4;
-		printf("Image 4\n");
-	} else if (x >= image_size + 1 && x <= image_size * 2 &&
-			y >= image_size + 1 && y <= image_size * 2) {
-		img_no = 5;
-		printf("Image 5\n");
-	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 &&
-			y >= image_size + 1 && y <= image_size * 2) {
-		img_no = 6;
-		printf("Image 6\n");
-	} else if (x >= 0 && x <= image_size && y >= image_size * 2 + 1 &&
-			y <= image_size * 3) {
-		img_no = 7;
-		printf("Image 7\n");
-	} else if (x >= image_size + 1 && x <= image_size * 2 &&
-			y >= image_size * 2 + 1 && y <= image_size * 3) {
-		img_no = 8;
-		printf("Image 8\n");
-	} else if (x >= image_size * 2 + 1 && x <= image_size * 3 &&
-			y >= image_size * 2 + 1 && y <= image_size * 3) {
-		img_no = 9;
-		printf("Image 9\n");
-	}
-
-	return img_no;
-}
-
 /* Load images onto stage */
 static void load_images(ClutterActor *stage, int direction)
 {
@@ -388,7 +339,7 @@ static void load_images(ClutterActor *stage, int direction)
 	int y = 0;
 	int c = 0;		/* column */
 	int r = 0;		/* row */
-	char image_name[5];	/* i_NN */
+	char image_name[3];	/* 1..99 + \0 */
 
 	if (!images) {
 		images = clutter_group_new();
@@ -451,7 +402,8 @@ static void load_images(ClutterActor *stage, int direction)
 		clutter_actor_set_position(img, x, y);
 		clutter_container_add_actor(CLUTTER_CONTAINER(images), img);
 		clutter_actor_show(img);
-		sprintf(image_name, "i_%.2d", loaded_images + 1);
+		snprintf(image_name, sizeof(image_name), "%d",
+				loaded_images + 1);
 		clutter_actor_set_name(img, image_name);
 
 		/* Allow the actor to emit events. */
@@ -481,11 +433,9 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 	static bool cur_enabled = true;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
-	gfloat x = 0.0;
-	gfloat y = 0.0;
 	int img_no;
 	char *image;
-	ClutterActor *actor;
+	ClutterActor *actor = clutter_event_get_source(event);
 	static ClutterActor *last_actor;
 
 	switch (event->type) {
@@ -572,27 +522,23 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		hide_label();
 		break;
 	case CLUTTER_BUTTON_RELEASE:
-		actor = clutter_event_get_source(event);
-		if (strncmp(clutter_actor_get_name(actor), "i_", 2) == 0)
+		if (IS_IMAGE(clutter_actor_get_name(actor))) {
 			reset_image(actor);
-		clutter_event_get_coords(event, &x, &y);
-		printf("Clicked image at (%.0f, %.0f)\n", x, y);
-		img_no = which_image(stage, x, y);
-		lookup_image(stage, img_no);
+			img_no = atoi(clutter_actor_get_name(actor));
+			lookup_image(stage, img_no);
+		}
 		break;
 	case CLUTTER_ENTER:
-		actor = clutter_event_get_source(event);
 		printf("%s has focus\n", clutter_actor_get_name(actor));
 		/* Don't animate the stage! */
-		if (strncmp(clutter_actor_get_name(actor), "i_", 2) == 0) {
+		if (IS_IMAGE(clutter_actor_get_name(actor))) {
 			reset_image(last_actor);
 			animate_image_start(actor);
 		}
 		break;
 	case CLUTTER_LEAVE:
-		actor = clutter_event_get_source(event);
 		printf("%s lost focus\n", clutter_actor_get_name(actor));
-		if (strncmp(clutter_actor_get_name(actor), "i_", 2) == 0)
+		if (IS_IMAGE(clutter_actor_get_name(actor)))
 			last_actor = actor;
 		break;
 	default:

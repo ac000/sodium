@@ -8,4 +8,4 @@ sodium: sodium.c
 	gzip -c sodium.1 > sodium.1.gz
 
 clean:
-	rm sodium sodium.1.gz
+	rm -f sodium sodium.1.gz

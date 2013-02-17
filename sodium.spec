@@ -1,5 +1,5 @@
 Name:		sodium
-Version:	006
+Version:	007
 Release:	1%{?dist}
 Summary:	GUI DVD cover art browser and movie launcher
 
@@ -9,8 +9,8 @@ URL:		http://github.com/ac000/sodium
 Source0:	sodium-%{version}.tar
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-BuildRequires:	clutter-devel glib2-devel
-Requires:	clutter glib2
+BuildRequires:	clutter-devel >= 1.12, glib2-devel
+Requires:	clutter >= 1.12, glib2
 
 %description
 sodium is Clutter based GUI DVD cover art browser and movie launcher
@@ -43,6 +43,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Feb 17 2013 Andrew Clayton <andrew@digital-domain.net> - 007-1
+- Update to new version. Requires Clutter >= 1.12
+
 * Sat Feb 16 2013 Andrew Clayton <andrew@digital-domain.net> - 006-1
 - Update to new version
 

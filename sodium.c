@@ -51,7 +51,6 @@
 bool animation = true;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
-ClutterBehaviour *behaviour;
 GPtrArray *files;	/* Array to hold image filenames */
 int array_pos = 0;	/* Current position in file list array */
 int nfiles = 0;		/* Number of files loaded into file list array */
@@ -83,44 +82,26 @@ static void reaper(int signo)
 	wait(NULL);
 }
 
-static gdouble on_alpha(ClutterAlpha *alpha, gpointer data)
-{
-	ClutterTimeline *timeline = clutter_alpha_get_timeline(alpha);
-
-	return clutter_timeline_get_progress(timeline);
-}
-
-static void animate_image_setup(void)
-{
-	ClutterTimeline *timeline;
-	ClutterAlpha *alpha;
-
-	timeline = clutter_timeline_new(5000); /* ms */
-	clutter_timeline_set_loop(timeline, TRUE);
-	clutter_timeline_start(timeline);
-	alpha = clutter_alpha_new_with_func(timeline, &on_alpha, NULL, NULL);
-	behaviour = clutter_behaviour_rotate_new(alpha,
-			CLUTTER_Y_AXIS, CLUTTER_ROTATE_CW, 0, 360);
-	clutter_behaviour_rotate_set_center(
-			CLUTTER_BEHAVIOUR_ROTATE(behaviour),
-			image_size / 2, image_size / 2, 0);
-	g_object_unref(timeline);
-}
-
 static void animate_image_start(ClutterActor *actor)
 {
 	if (!animation)
 		return;
 
-	clutter_behaviour_apply(behaviour, actor);
-}
+	ClutterTransition *transition;
 
-static void animate_image_stop(ClutterActor *actor)
-{
-	if (!animation)
-		return;
+	clutter_actor_set_pivot_point(actor, 0.5, 1.0);
+	transition = clutter_property_transition_new("rotation-angle-y");
 
-	clutter_behaviour_remove(behaviour, actor);
+	clutter_transition_set_from(transition, G_TYPE_DOUBLE, 0.0);
+	clutter_transition_set_to(transition, G_TYPE_DOUBLE, 360.0);
+
+	clutter_timeline_set_duration(CLUTTER_TIMELINE(transition), 5000);
+	clutter_timeline_set_repeat_count(CLUTTER_TIMELINE(transition), -1);
+
+	clutter_timeline_set_progress_mode(CLUTTER_TIMELINE (transition),
+			CLUTTER_LINEAR);
+
+	clutter_actor_add_transition(actor, "rotation", transition);
 }
 
 static void reset_image(ClutterActor *actor)
@@ -128,8 +109,8 @@ static void reset_image(ClutterActor *actor)
 	if (!animation)
 		return;
 
-	animate_image_stop(actor);
-	clutter_actor_set_rotation(actor, CLUTTER_Y_AXIS, 0, 0, 0, 0);
+	clutter_actor_remove_all_transitions(actor);
+	clutter_actor_set_rotation_angle(actor, CLUTTER_Y_AXIS, 0.0);
 }
 
 /* Function to help sort the files list array */
@@ -202,8 +183,8 @@ static void create_no_video_label(ClutterActor *stage)
 
 	label = clutter_text_new_full("Sans 32", "No Video", &actor_color);
 	clutter_actor_set_position(label, image_size * 1.25, window_size / 2);
-	clutter_container_add_actor(CLUTTER_CONTAINER(stage), label);
-	clutter_actor_raise_top(label);
+	clutter_actor_add_child(stage, label);
+	clutter_actor_set_child_above_sibling(label, stage, NULL);
 	clutter_actor_hide(label);
 }
 
@@ -332,7 +313,6 @@ static void lookup_image(ClutterActor *stage, int img_no)
 /* Load images onto stage */
 static void load_images(ClutterActor *stage, int direction)
 {
-	ClutterActor *img;
 	static ClutterActor *images = NULL;
 	int i;
 	int x = 0;
@@ -342,8 +322,8 @@ static void load_images(ClutterActor *stage, int direction)
 	char image_name[3];	/* 1..99 + \0 */
 
 	if (!images) {
-		images = clutter_group_new();
-		clutter_container_add_actor(CLUTTER_CONTAINER(stage), images);
+		images = clutter_actor_new();
+		clutter_actor_add_child(stage, images);
 	}
 
 	if (direction == BWD || direction == END) {
@@ -388,26 +368,43 @@ static void load_images(ClutterActor *stage, int direction)
 	 * GRID_SIZE images to view you don't get the previous
 	 * images still vivisble.
 	 */
-	clutter_group_remove_all(CLUTTER_GROUP(images));
+	clutter_actor_remove_all_children(images);
 
 	for (i = array_pos; i < (array_pos + GRID_SIZE); i++) {
 		if (r == ROW_SIZE || i == nfiles)
 			break;
+		GdkPixbuf *pixbuf;
+		ClutterContent *image;
+		ClutterActor *ibox;
 
 		printf("Loading image: %s\n",
 			(char *)g_ptr_array_index(files, i));
-		img = clutter_texture_new_from_file(g_ptr_array_index(
-					files, i), NULL);
-		clutter_actor_set_size(img, image_size, image_size);
-		clutter_actor_set_position(img, x, y);
-		clutter_container_add_actor(CLUTTER_CONTAINER(images), img);
-		clutter_actor_show(img);
+		pixbuf = gdk_pixbuf_new_from_file(
+				(char *)g_ptr_array_index(files, i), NULL);
+		image = clutter_image_new();
+		clutter_image_set_data(CLUTTER_IMAGE(image),
+				gdk_pixbuf_get_pixels(pixbuf),
+				gdk_pixbuf_get_has_alpha(pixbuf)
+					? COGL_PIXEL_FORMAT_RGBA_8888
+					: COGL_PIXEL_FORMAT_RGB_888,
+				gdk_pixbuf_get_width(pixbuf),
+				gdk_pixbuf_get_height(pixbuf),
+				gdk_pixbuf_get_rowstride(pixbuf),
+				NULL);
+		g_object_unref(pixbuf);
+		ibox = clutter_actor_new();
+		clutter_actor_set_content(ibox, image);
+		g_object_unref(image);
+		clutter_actor_set_size(ibox, image_size, image_size);
+		clutter_actor_set_position(ibox, x, y);
+		clutter_actor_add_child(images, ibox);
+		clutter_actor_show(ibox);
 		snprintf(image_name, sizeof(image_name), "%d",
 				loaded_images + 1);
-		clutter_actor_set_name(img, image_name);
+		clutter_actor_set_name(ibox, image_name);
 
 		/* Allow the actor to emit events. */
-		clutter_actor_set_reactive(img, TRUE);
+		clutter_actor_set_reactive(ibox, TRUE);
 
 		c += 1;
 		if (c == COL_SIZE) {
@@ -619,9 +616,9 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	stage = clutter_stage_get_default();
+	stage = clutter_stage_new();
 	clutter_actor_set_size(stage, window_size, window_size);
-	clutter_stage_set_color(CLUTTER_STAGE(stage), &stage_clr);
+	clutter_actor_set_background_color(stage, &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	g_object_set(stage, "cursor-visible", TRUE, NULL);
 	clutter_actor_set_name(stage, "stage");
@@ -634,9 +631,6 @@ int main(int argc, char *argv[])
 
 	/* Handle keyboard/mouse events */
 	g_signal_connect(stage, "event", G_CALLBACK(input_events_cb), NULL);
-
-	if (animation)
-		animate_image_setup();
 
 	clutter_main();
 

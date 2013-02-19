@@ -3,7 +3,7 @@
  *
  * DVD cover art viewer / player
  *
- * Copyright (C) 2008-2012 Andrew Clayton
+ * Copyright (C) 2008-2013 Andrew Clayton
  *
  * License: GPLv2. See COPYING
  *

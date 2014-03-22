@@ -96,6 +96,12 @@ or
 	$ SODIUM_ANIMATION=0 sodium <args ...>
 
 
+Debug output
+============
+
+Debugging output can be enabled by setting the SODIUM_DEBUG environment
+variable to 1.
+
 License
 =======
 

@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #include <dirent.h>
 #include <string.h>
@@ -48,6 +50,18 @@
 /* Macro to check if a given actor is an image */
 #define IS_IMAGE(actor)	((isdigit(actor[0])) ? 1 : 0)
 
+/*
+ * Debug wrapper around printf(). If debug is enabled it will print the
+ * message prefixed by the function name that the message originates from.
+ */
+#define pr_debug(fmt, ...) \
+	do { \
+		if (!debug) \
+			break; \
+		printf("%s: " fmt, __func__, ##__VA_ARGS__); \
+	} while (0)
+
+bool debug = false;	/* Default to no debug output */
 bool animation = true;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
 ClutterActor *label;
@@ -153,14 +167,14 @@ static void process_directory(const gchar *name)
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Opening directory: %s\n", name);
+	pr_debug("Opening directory: %s\n", name);
 	chdir(name);
 
 	files = g_ptr_array_new();
 	while ((entry = readdir(dir)) != NULL) {
 		if (is_supported_img(entry->d_name)) {
 			fname = g_strdup(entry->d_name);
-			printf("Adding image %s to list\n", fname);
+			pr_debug("Adding image %s to list\n", fname);
 			g_ptr_array_add(files, (gpointer)fname);
 			nfiles++;
 		}
@@ -250,8 +264,8 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 	/* Split buf up into a vector array for passing to execvp */
 	g_shell_parse_argv(buf, NULL, &argv, NULL);
 
-	printf("Playing: (%s)\n", video_paths);
-	printf("execing: %s %s %s\n", cmd, args, video_paths);
+	pr_debug("Playing: (%s)\n", video_paths);
+	pr_debug("execing: %s %s %s\n", cmd, args, video_paths);
 	play_video(argv);
 }
 
@@ -272,7 +286,7 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	char **fields = NULL;
 	static FILE *fp;
 
-	printf("Opening movie list: (%s)\n", movie_list);
+	pr_debug("Opening movie list: (%s)\n", movie_list);
 	fp = fopen(movie_list, "re");
 	if (!fp) {
 		fprintf(stderr, "Can't open movie list: (%s)\n", movie_list);
@@ -288,7 +302,7 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	}
 
 	/* If we get to here, we didn't find a video */
-	printf("No video for (%s)\n", actor);
+	pr_debug("No video for (%s)\n", actor);
 	clutter_actor_show(label);
 
 out:
@@ -303,7 +317,7 @@ static void lookup_image(ClutterActor *stage, int img_no)
 				array_pos - loaded_images + img_no - 1);
 		lookup_video(stage, image);
 	} else {
-		printf("No image at (%d)\n", img_no);
+		pr_debug("No image at (%d)\n", img_no);
 	}
 }
 
@@ -374,7 +388,7 @@ static void load_images(ClutterActor *stage, int direction)
 		ClutterContent *image;
 		ClutterActor *ibox;
 
-		printf("Loading image: %s\n",
+		pr_debug("Loading image: %s\n",
 			(char *)g_ptr_array_index(files, i));
 		pixbuf = gdk_pixbuf_new_from_file(
 				(char *)g_ptr_array_index(files, i), NULL);
@@ -480,7 +494,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 					img_no - 1);
 				lookup_video(stage, image);
 			} else {
-				printf("No image at (%d)\n", img_no);
+				pr_debug("No image at (%d)\n", img_no);
 			}
 			break;
 		case CLUTTER_Escape:
@@ -498,16 +512,16 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		 * hard to judge what constitutes a single scroll event.
 		 */
 		setd = clutter_event_get_time(event) - pset;
-		printf("pset = (%d), setd = (%d)\n", pset, setd);
+		pr_debug("pset = (%d), setd = (%d)\n", pset, setd);
 
 		if (event->scroll.direction == CLUTTER_SCROLL_UP &&
 				setd > SCROLL_THRESH) {
-			printf("Scroll Up @ (%u)\n",
+			pr_debug("Scroll Up @ (%u)\n",
 				clutter_event_get_time(event));
 			load_images(stage, BWD);
 		} else if (event->scroll.direction == CLUTTER_SCROLL_DOWN &&
 				setd > SCROLL_THRESH) {
-			printf("Scroll Down @ (%u)\n",
+			pr_debug("Scroll Down @ (%u)\n",
 				clutter_event_get_time(event));
 			load_images(stage, FWD);
 		}
@@ -524,7 +538,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		}
 		break;
 	case CLUTTER_ENTER:
-		printf("%s has focus\n", clutter_actor_get_name(actor));
+		pr_debug("%s has focus\n", clutter_actor_get_name(actor));
 		/* Don't animate the stage! */
 		if (IS_IMAGE(clutter_actor_get_name(actor))) {
 			reset_image(last_actor);
@@ -532,7 +546,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		}
 		break;
 	case CLUTTER_LEAVE:
-		printf("%s lost focus\n", clutter_actor_get_name(actor));
+		pr_debug("%s lost focus\n", clutter_actor_get_name(actor));
 		if (IS_IMAGE(clutter_actor_get_name(actor)))
 			last_actor = actor;
 		break;
@@ -557,7 +571,7 @@ static void get_movie_list_path(char *home)
 	movie_list = malloc(strlen(home) + 27);
 	strcpy(movie_list, home);
 	strcat(movie_list, "/.config/sodium/movie-list");
-	printf("Movie list path: %s\n", movie_list);
+	pr_debug("Movie list path: %s\n", movie_list);
 }
 
 /* Setup the window and image size dimensions */
@@ -570,8 +584,8 @@ static void set_dimensions(char *size)
 
 	image_size = window_size / ROW_SIZE;
 
-	printf("Setting window size to (%dx%d)\n", window_size, window_size);
-	printf("Setting image size to  (%dx%d)\n", image_size, image_size);
+	pr_debug("Setting window size to (%dx%d)\n", window_size, window_size);
+	pr_debug("Setting image size to  (%dx%d)\n", image_size, image_size);
 }
 
 int main(int argc, char *argv[])
@@ -582,10 +596,21 @@ int main(int argc, char *argv[])
 				{ "sodium - DVD Cover Art Viewer / Player" };
 	struct sigaction action;
 	char *e_animation;
+	char *e_debug;
 	int ci;
 
 	if (argc < 3)
 		display_usage();
+
+	e_debug = getenv("SODIUM_DEBUG");
+	if (e_debug)
+		debug = atoi(e_debug);
+	if (!debug) {
+		/* Make stderr point to /dev/null */
+		int fd = open("/dev/null", O_WRONLY);
+		dup2(fd, STDERR_FILENO);
+		close(fd);
+	}
 
 	e_animation = getenv("SODIUM_ANIMATION");
 	if (e_animation)

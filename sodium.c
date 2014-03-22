@@ -299,10 +299,8 @@ out:
 
 static void lookup_image(ClutterActor *stage, int img_no)
 {
-	char *image;
-
 	if (img_no <= loaded_images) {
-		image = g_ptr_array_index(files,
+		char *image = g_ptr_array_index(files,
 				array_pos - loaded_images + img_no - 1);
 		lookup_video(stage, image);
 	} else {
@@ -427,11 +425,9 @@ static void load_images(ClutterActor *stage, int direction)
 static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			    gpointer user_data)
 {
-	static bool cur_enabled = true;	/* Cursor is defaulted to visible */
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
 	int img_no;
-	char *image;
 	ClutterActor *actor = clutter_event_get_source(event);
 	static ClutterActor *last_actor;
 
@@ -455,7 +451,9 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		case CLUTTER_End:
 			load_images(stage, END);
 			break;
-		case CLUTTER_c:
+		case CLUTTER_c: {
+			static bool cur_enabled = true;
+
 			if (!cur_enabled) {
 				g_object_set(stage, "cursor-visible", TRUE,
 						NULL);
@@ -466,6 +464,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 				cur_enabled = false;
 			}
 			break;
+		}
 		case CLUTTER_1:
 		case CLUTTER_2:
 		case CLUTTER_3:
@@ -477,7 +476,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		case CLUTTER_9:
 			img_no = sym - 48; /* 1 is sym(49) */
 			if (img_no <= loaded_images) {
-				image = g_ptr_array_index(files,
+				char *image = g_ptr_array_index(files,
 					array_pos - loaded_images +
 					img_no - 1);
 				lookup_video(stage, image);

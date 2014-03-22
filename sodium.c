@@ -149,7 +149,7 @@ static void process_directory(const gchar *name)
 
 	dir = opendir(name);
 	if (!dir) {
-		printf("Can't open images directory (%s)\n", name);
+		fprintf(stderr, "Can't open images directory: %s\n", name);
 		exit(EXIT_FAILURE);
 	}
 
@@ -202,8 +202,7 @@ static void play_video(gchar **argv)
 		/* child */
 		err = execvp(argv[0], argv);
 		if (err == -1) {
-			fprintf(stderr, "ERROR: Could not exec %s\n",
-				argv[0]);
+			fprintf(stderr, "ERROR: Could not exec %s\n", argv[0]);
 			_exit(EXIT_FAILURE);
 		}
 	}
@@ -276,7 +275,7 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	printf("Opening movie list: (%s)\n", movie_list);
 	fp = fopen(movie_list, "re");
 	if (!fp) {
-		printf("Can't open movie list: (%s)\n", movie_list);
+		fprintf(stderr, "Can't open movie list: (%s)\n", movie_list);
 		exit(EXIT_FAILURE);
 	}
 
@@ -546,8 +545,8 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 static void get_movie_list_path(char *home)
 {
 	if (!home) {
-		printf("Unable to set the path for the movie-list.\n");
-		printf("Please ensure $HOME is set.\n");
+		fprintf(stderr, "Unable to set the path for the movie-list.\n");
+		fprintf(stderr, "Please ensure $HOME is set.\n");
 		exit(EXIT_FAILURE);
 	}
 

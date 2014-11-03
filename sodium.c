@@ -61,19 +61,22 @@
 		printf("%s: " fmt, __func__, ##__VA_ARGS__); \
 	} while (0)
 
-bool debug = false;	/* Default to no debug output */
-bool animation = true;	/* Animation default to enabled */
+static bool debug;		/* Default to no debug output */
+static bool animation = true;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
-ClutterActor *label;
-GPtrArray *files;	/* Array to hold image filenames */
-int array_pos = 0;	/* Current position in file list array */
-int nfiles = 0;		/* Number of files loaded into file list array */
-int loaded_images = 0;	/* How many images are currently shown on screen */
-char image_path[PATH_MAX];	/* Location of images passed in as argv[1] */
-char *movie_list;		/* Path to movie-list mapping file */
-char movie_base_path[PATH_MAX];	/* Path to base directory containing videos */
-int window_size;	/* Size of the window */
-int image_size;		/* Size of the image */
+static ClutterActor *label;
+static GPtrArray *files;	/* Array to hold image filenames */
+static int array_pos;	/* Current position in file list array */
+static int nfiles;	/* Number of files loaded into file list array */
+/* How many images are currently shown on screen */
+static int loaded_images;
+/* Location of images passed in as argv[1] */
+static char image_path[PATH_MAX];
+static char *movie_list;	/* Path to movie-list mapping file */
+/* Path to base directory containing videos */
+static char movie_base_path[PATH_MAX];
+static int window_size;	/* Size of the window */
+static int image_size;	/* Size of the image */
 
 /* Display a help/usage summary */
 static void display_usage(void)

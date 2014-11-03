@@ -478,15 +478,7 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			}
 			break;
 		}
-		case CLUTTER_1:
-		case CLUTTER_2:
-		case CLUTTER_3:
-		case CLUTTER_4:
-		case CLUTTER_5:
-		case CLUTTER_6:
-		case CLUTTER_7:
-		case CLUTTER_8:
-		case CLUTTER_9:
+		case CLUTTER_1...CLUTTER_9:
 			img_no = sym - 48; /* 1 is sym(49) */
 			if (img_no <= loaded_images) {
 				char *image = g_ptr_array_index(files,

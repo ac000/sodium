@@ -175,6 +175,9 @@ static void process_directory(const gchar *name)
 
 	files = g_ptr_array_new();
 	while ((entry = readdir(dir)) != NULL) {
+		if (strcmp(entry->d_name, ".") == 0 ||
+		    strcmp(entry->d_name, "..") == 0)
+			continue;
 		if (is_supported_img(entry->d_name)) {
 			fname = g_strdup(entry->d_name);
 			pr_debug("Adding image %s to list\n", fname);

@@ -3,7 +3,7 @@
  *
  * DVD cover art viewer / player
  *
- * Copyright (C) 2008 - 2014	Andrew Clayton <andrew@digital-domain.net>
+ * Copyright (C) 2008 - 2015	Andrew Clayton <andrew@digital-domain.net>
  *
  * License: GPLv2. See COPYING
  *
@@ -289,7 +289,6 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 static void lookup_video(ClutterActor *stage, char *actor)
 {
 	char buf[BUF_SIZE];
-	char **fields = NULL;
 	static FILE *fp;
 
 	pr_debug("Opening movie list: (%s)\n", movie_list);
@@ -300,11 +299,13 @@ static void lookup_video(ClutterActor *stage, char *actor)
 	}
 
 	while (fgets(buf, BUF_SIZE, fp)) {
-		fields = g_strsplit(buf, "|", 0);
+		char **fields = g_strsplit(buf, "|", 0);
 		if (strcmp(actor, fields[0]) == 0) {
 			build_exec_cmd(fields[2], fields[3], fields[1]);
+			g_strfreev(fields);
 			goto out;
 		}
+		g_strfreev(fields);
 	}
 
 	/* If we get to here, we didn't find a video */
@@ -313,7 +314,6 @@ static void lookup_video(ClutterActor *stage, char *actor)
 
 out:
 	fclose(fp);
-	g_strfreev(fields);
 }
 
 static void lookup_image(ClutterActor *stage, int img_no)

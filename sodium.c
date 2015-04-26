@@ -289,7 +289,7 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 static void lookup_video(ClutterActor *stage, char *actor)
 {
 	char buf[BUF_SIZE];
-	static FILE *fp;
+	FILE *fp;
 
 	pr_debug("Opening movie list: (%s)\n", movie_list);
 	fp = fopen(movie_list, "re");

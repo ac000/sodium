@@ -441,8 +441,8 @@ static void load_images(ClutterActor *stage, int direction)
 }
 
 /* Process keyboard/mouse events */
-static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
-			    gpointer user_data)
+static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
+				gpointer user_data)
 {
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
@@ -549,8 +549,10 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			last_actor = actor;
 		break;
 	default:
-		break;
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 /* Set the path for the movie-list mapping file */
@@ -642,6 +644,8 @@ int main(int argc, char *argv[])
 	clutter_actor_set_background_color(stage, &stage_clr);
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	g_object_set(stage, "cursor-visible", TRUE, NULL);
+	g_signal_connect(stage, "destroy", G_CALLBACK(clutter_main_quit),
+			NULL);
 	clutter_actor_set_name(stage, "stage");
 	clutter_actor_show(stage);
 

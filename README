@@ -31,6 +31,7 @@ You can navigate via the following:
 	End				Last Page
 	c				Toggle cursor on/off
 	1 to 9				Select Video
+	s				Sort mode
 
 You can also scroll with the mouse wheel. NOTE: Mouse scroll events are limited
 to 1 scroll event every 750ms to prevent over scrolling on devices such as
@@ -49,12 +50,15 @@ names and the player to use and the arguments to pass to the player.
 It takes the form of a pipe (|) seperated fields flat file, e.g one entry
 would look like:
 
-	taken.jpg|action/Taken.mkv|xine|-f
+	taken.jpg|action/Taken.mkv|vlc|--fullscreen|6453
 
 taken.jpg 		is the name of image shown in sodium
 action/Taken.mkv 	is the relative path to the video
-xine			is the command to lauch to play the video
--f			is the arguments to pass to the video player
+vlc			is the command to lauch to play the video
+--fullscreen		is the arguments to pass to the video player
+6453			is the movie runtime in seconds
+
+The last field (runtime) is optional.
 
 When specifing a relative path you have to pass the optional /path/to/videos
 argument that is the top level directory where the videos are held. NOTE: you
@@ -77,6 +81,13 @@ If you have a box set of a series for example. You can do something like
 
 which would bring up a nautilus window showing the contents of the Season_4
 directory.
+
+If you specify the optional runtime field then when pressing 's' sodium will
+cycle between sorting by movie name (default) and sorting by runtime in
+ascending order. Entries with no runtime field will be treated as 0.
+
+There is a tools/add-runtimes.sh script to help in adding runtime entries to
+an existing mapping file.
 
 The mapping file should be called movie-list and placed under
 ~/.config/sodium/

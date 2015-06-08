@@ -61,6 +61,14 @@
 		printf("%s: " fmt, __func__, ##__VA_ARGS__); \
 	} while (0)
 
+struct movie_info {
+	char *img_name;
+	int runtime;
+};
+
+/* Movie sort types */
+enum { SM_NAME, SM_RUNTIME };
+
 static bool debug;		/* Default to no debug output */
 static bool animation = true;	/* Animation default to enabled */
 /* label to display when an image is clicked that has no associated video */
@@ -77,6 +85,7 @@ static char *movie_list;	/* Path to movie-list mapping file */
 static char movie_base_path[PATH_MAX];
 static int window_size;	/* Size of the window */
 static int image_size;	/* Size of the image */
+static int sort_mode = SM_NAME;
 
 /* Display a help/usage summary */
 static void display_usage(void)
@@ -91,6 +100,14 @@ static void display_usage(void)
 	printf("given relative to this path.\n");
 
 	exit(EXIT_FAILURE);
+}
+
+static void free_movie_info(gpointer data)
+{
+	struct movie_info *mi = data;
+
+	free(mi->img_name);
+	free(mi);
 }
 
 /* Reap child pids */
@@ -130,18 +147,23 @@ static void reset_image(ClutterActor *actor)
 	clutter_actor_set_rotation_angle(actor, CLUTTER_Y_AXIS, 0.0);
 }
 
-/* Function to help sort the files list array */
-static int compare_string(const void *p1, const void *p2)
+/* Function to help sort the images by movie name */
+static int compare_names(const struct movie_info **mi1,
+			 const struct movie_info **mi2)
 {
-	/*
-	 * Function used from the qsort(3) man page
-	 *
-	 * The actual arguments to this function are "pointers to
-	 * pointers to char", but strcmp(3) arguments are "pointers
-	 * to char", hence the following cast plus dereference
-	 */
+	return strcmp((*mi1)->img_name, (*mi2)->img_name);
+}
 
-	return strcmp(*(char * const *)p1, *(char * const *)p2);
+/* Function to help sort the images by movie runtime in increasing length */
+static int compare_runtimes(const struct movie_info **mi1,
+			    const struct movie_info **mi2)
+{
+	if ((*mi1)->runtime < (*mi2)->runtime)
+		return -1;
+	else if ((*mi1)->runtime > (*mi2)->runtime)
+		return 1;
+	else
+		return 0;
 }
 
 /* Check to see if the file is a valid image */
@@ -162,7 +184,6 @@ static void process_directory(const gchar *name)
 {
 	DIR *dir;
 	struct dirent *entry;
-	char *fname;
 
 	dir = opendir(name);
 	if (!dir) {
@@ -173,21 +194,58 @@ static void process_directory(const gchar *name)
 	pr_debug("Opening directory: %s\n", name);
 	chdir(name);
 
-	files = g_ptr_array_new();
+	files = g_ptr_array_new_with_free_func(
+			(GDestroyNotify)free_movie_info);
 	while ((entry = readdir(dir)) != NULL) {
 		if (strcmp(entry->d_name, ".") == 0 ||
 		    strcmp(entry->d_name, "..") == 0)
 			continue;
 		if (is_supported_img(entry->d_name)) {
-			fname = g_strdup(entry->d_name);
-			pr_debug("Adding image %s to list\n", fname);
-			g_ptr_array_add(files, (gpointer)fname);
+			struct movie_info *mi;
+
+			mi = malloc(sizeof(struct movie_info));
+			mi->img_name = strdup(entry->d_name);
+			mi->runtime = 0;
+			pr_debug("Adding image %s to list\n", mi->img_name);
+			g_ptr_array_add(files, mi);
 			nfiles++;
 		}
 	}
 	closedir(dir);
 
-	g_ptr_array_sort(files, compare_string);
+	g_ptr_array_sort(files, (GCompareFunc)compare_names);
+}
+
+static void set_runtimes(void)
+{
+	char buf[BUF_SIZE];
+	FILE *fp;
+
+	fp = fopen(movie_list, "re");
+	if (!fp) {
+		fprintf(stderr, "Can't open movie list: (%s)\n", movie_list);
+		exit(EXIT_FAILURE);
+	}
+
+	while (fgets(buf, BUF_SIZE, fp)) {
+		char **fields = g_strsplit(buf, "|", 0);
+		int i;
+
+		if (!fields[4])
+			goto next;
+
+		for (i = 0; i < nfiles; i++) {
+			struct movie_info *mi = g_ptr_array_index(files, i);
+
+			if (strcmp(fields[0], mi->img_name) == 0) {
+				mi->runtime = atoi(fields[4]);
+				break;
+			}
+		}
+next:
+		g_strfreev(fields);
+	}
+	fclose(fp);
 }
 
 static void hide_label(void)
@@ -319,9 +377,10 @@ out:
 static void lookup_image(ClutterActor *stage, int img_no)
 {
 	if (img_no <= loaded_images) {
-		char *image = g_ptr_array_index(files,
+		struct movie_info *mi = g_ptr_array_index(files,
 				array_pos - loaded_images + img_no - 1);
-		lookup_video(stage, image);
+
+		lookup_video(stage, mi->img_name);
 	} else {
 		pr_debug("No image at (%d)\n", img_no);
 	}
@@ -393,11 +452,10 @@ static void load_images(ClutterActor *stage, int direction)
 		GdkPixbuf *pixbuf;
 		ClutterContent *image;
 		ClutterActor *ibox;
+		struct movie_info *mi = g_ptr_array_index(files, i);
 
-		pr_debug("Loading image: %s\n",
-			(char *)g_ptr_array_index(files, i));
-		pixbuf = gdk_pixbuf_new_from_file(
-				(char *)g_ptr_array_index(files, i), NULL);
+		pr_debug("Loading image: %s\n", mi->img_name);
+		pixbuf = gdk_pixbuf_new_from_file(mi->img_name, NULL);
 		image = clutter_image_new();
 		clutter_image_set_data(CLUTTER_IMAGE(image),
 				gdk_pixbuf_get_pixels(pixbuf),
@@ -495,6 +553,22 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 				pr_debug("No image at (%d)\n", img_no);
 			}
 			break;
+		case CLUTTER_s: {
+			int (*cmp_func)(const struct movie_info **mi1,
+					const struct movie_info **mi2);
+
+			if (sort_mode == SM_NAME) {
+				cmp_func = compare_runtimes;
+				sort_mode = SM_RUNTIME;
+			} else {
+				cmp_func = compare_names;
+				sort_mode = SM_NAME;
+			}
+			g_ptr_array_sort(files, (GCompareFunc)cmp_func);
+			array_pos -= GRID_SIZE;
+			load_images(stage, FWD);
+			break;
+		}
 		case CLUTTER_Escape:
 		case CLUTTER_q:
 		case 269025110: /* Exit button on Hauppauge Nova-T remote */
@@ -650,6 +724,7 @@ int main(int argc, char *argv[])
 	clutter_actor_show(stage);
 
 	process_directory(image_path);
+	set_runtimes();
 	load_images(stage, FWD);
 
 	create_no_video_label(stage);
@@ -660,6 +735,7 @@ int main(int argc, char *argv[])
 	clutter_main();
 
 	free(movie_list);
+	g_ptr_array_free(files, TRUE);
 
 	exit(EXIT_SUCCESS);
 }

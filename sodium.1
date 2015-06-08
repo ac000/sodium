@@ -1,4 +1,4 @@
-.TH SODIUM 1 "March 23, 2012"
+.TH SODIUM 1 "Jun 8, 2015" "" "General Commands Manual"
 .SH NAME
 sodium - DVD cover art viewer & movie launcher
 
@@ -35,17 +35,21 @@ You can optionally create a file called \fBmovie-list\fR under
 and takes the form:-
 
 .RS
-image|movie|player|args
+image|movie|player|args[|runtime]
 .RE
 
 e.g
 
 .RS
-taken.jpg|action/Taken.mkv|totem|--fullscreen
+taken.jpg|action/Taken.mkv|vlc|--fullscreen|5375
 .RE
 
 The movie path can be relative to the video path if given at runtime. Or it
-can be absolute. You can specify multiple paths in there.
+can be absolute. You can specify multiple space separated paths in there. See
+the \fBREADME\fR for more details.
+
+The runtime field is optional and can be used in sorting the movies in runtime
+order.
 
 .SH SOURCE
 Source available at http://github.com/ac000/sodium under the GNU GPLv2

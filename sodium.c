@@ -531,15 +531,13 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		case CLUTTER_c: {
 			static bool cur_enabled = true;
 
-			if (!cur_enabled) {
+			if (!cur_enabled)
 				g_object_set(stage, "cursor-visible", TRUE,
 						NULL);
-				cur_enabled = true;
-			} else {
+			else
 				g_object_set(stage, "cursor-visible", FALSE,
 						NULL);
-				cur_enabled = false;
-			}
+			cur_enabled = !cur_enabled;
 			break;
 		}
 		case CLUTTER_1...CLUTTER_9:

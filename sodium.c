@@ -272,13 +272,9 @@ static void play_video(gchar **argv)
 	pid_t pid;
 
 	pid = fork();
-	if (pid > 0) {
-		/* parent */
-		g_strfreev(argv);
-	} else if (pid == 0) {
-		int err;
-		/* child */
-		err = execvp(argv[0], argv);
+	if (pid == 0) { /* child */
+		int err = execvp(argv[0], argv);
+
 		if (err == -1) {
 			fprintf(stderr, "ERROR: Could not exec %s\n", argv[0]);
 			_exit(EXIT_FAILURE);
@@ -331,6 +327,7 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
 	pr_debug("Playing: (%s)\n", video_paths);
 	pr_debug("execing: %s %s %s\n", cmd, args, video_paths);
 	play_video(argv);
+	g_strfreev(argv);
 }
 
 /*

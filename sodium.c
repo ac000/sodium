@@ -80,7 +80,7 @@ static int nfiles;	/* Number of files loaded into file list array */
 static int loaded_images;
 /* Location of images passed in as argv[1] */
 static char image_path[PATH_MAX];
-static char *movie_list;	/* Path to movie-list mapping file */
+static char movie_list[PATH_MAX];	/* Path to movie-list mapping file */
 /* Path to base directory containing videos */
 static char movie_base_path[PATH_MAX];
 static int window_size;	/* Size of the window */
@@ -633,13 +633,7 @@ static void get_movie_list_path(char *home)
 		exit(EXIT_FAILURE);
 	}
 
-	/*
-	 * Malloc enough space for the movie-list path
-	 * $HOME + /.config/sodium/movie-list
-	 */
-	movie_list = malloc(strlen(home) + 27);
-	strcpy(movie_list, home);
-	strcat(movie_list, "/.config/sodium/movie-list");
+	snprintf(movie_list, PATH_MAX, "%s/.config/sodium/movie-list", home);
 	pr_debug("Movie list path: %s\n", movie_list);
 }
 
@@ -729,7 +723,6 @@ int main(int argc, char *argv[])
 
 	clutter_main();
 
-	free(movie_list);
 	g_ptr_array_free(files, TRUE);
 
 	exit(EXIT_SUCCESS);

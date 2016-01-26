@@ -3,7 +3,7 @@
  *
  * DVD cover art viewer / player
  *
- * Copyright (C) 2008 - 2015	Andrew Clayton <andrew@digital-domain.net>
+ * Copyright (C) 2008 - 2016	Andrew Clayton <andrew@digital-domain.net>
  *
  * License: GPLv2. See COPYING
  *
@@ -539,14 +539,10 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		}
 		case CLUTTER_1...CLUTTER_9:
 			img_no = sym - 48; /* 1 is sym(49) */
-			if (img_no <= loaded_images) {
-				char *image = g_ptr_array_index(files,
-					array_pos - loaded_images +
-					img_no - 1);
-				lookup_video(stage, image);
-			} else {
+			if (img_no <= loaded_images)
+				lookup_image(stage, img_no);
+			else
 				pr_debug("No image at (%d)\n", img_no);
-			}
 			break;
 		case CLUTTER_s: {
 			int (*cmp_func)(const struct movie_info **mi1,

@@ -117,3 +117,14 @@ License
 =======
 
 Sodium is licensed under the terms of the GPLv2. See the COPYING file.
+
+
+Contributing
+============
+
+See CodingStyle. Also, code should be signed-off. This means adding a line
+that says "Signed-off-by: Name <email>" at the end of each commit, indicating
+that you wrote the code and have the right to pass it on as an open source
+patch.
+
+See: http://developercertificate.org/

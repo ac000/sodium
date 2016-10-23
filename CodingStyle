@@ -55,7 +55,6 @@ As a general rule :-
 
 	b = a + (c + d +
 		 f + z);
-	variable_in_C
 
 - switch statements with blocks are a little bit special (to avoid indenting
   too far)

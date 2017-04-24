@@ -44,6 +44,17 @@ As a general rule :-
 		j = 6;
 	}
 
+- don't do assignments inside if () statements, always do it this way
+
+	res = something();
+	if (!res)
+		return NULL;
+
+- if you don't need the result you can do
+
+	if (!something())
+		return NULL;
+
 - use space to make visual separation easier
 
 	a = b + 3 + e / 4;

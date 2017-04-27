@@ -5,7 +5,7 @@ Summary:	GUI DVD cover art browser and movie launcher
 
 Group:		Applications/Multimedia
 License:	GPLv2
-URL:		http://github.com/ac000/sodium
+URL:		https://github.com/ac000/sodium
 Source0:	sodium-%{version}.tar
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 

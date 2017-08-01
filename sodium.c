@@ -511,21 +511,21 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 
 		hide_label();
 		switch (sym) {
-		case CLUTTER_Page_Up:
-		case CLUTTER_Up:
+		case CLUTTER_KEY_Page_Up:
+		case CLUTTER_KEY_Up:
 			load_images(stage, BWD);
 			break;
-		case CLUTTER_Page_Down:
-		case CLUTTER_Down:
+		case CLUTTER_KEY_Page_Down:
+		case CLUTTER_KEY_Down:
 			load_images(stage, FWD);
 			break;
-		case CLUTTER_Home:
+		case CLUTTER_KEY_Home:
 			load_images(stage, HME);
 			break;
-		case CLUTTER_End:
+		case CLUTTER_KEY_End:
 			load_images(stage, END);
 			break;
-		case CLUTTER_c: {
+		case CLUTTER_KEY_c: {
 			static bool cur_enabled = true;
 
 			if (!cur_enabled)
@@ -537,14 +537,14 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			cur_enabled = !cur_enabled;
 			break;
 		}
-		case CLUTTER_1...CLUTTER_9:
+		case CLUTTER_KEY_1...CLUTTER_KEY_9:
 			img_no = sym - 48; /* 1 is sym(49) */
 			if (img_no <= loaded_images)
 				lookup_image(stage, img_no);
 			else
 				pr_debug("No image at (%d)\n", img_no);
 			break;
-		case CLUTTER_s: {
+		case CLUTTER_KEY_s: {
 			int (*cmp_func)(const struct movie_info **mi1,
 					const struct movie_info **mi2);
 
@@ -560,8 +560,8 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			load_images(stage, FWD);
 			break;
 		}
-		case CLUTTER_Escape:
-		case CLUTTER_q:
+		case CLUTTER_KEY_Escape:
+		case CLUTTER_KEY_q:
 		case 269025110: /* Exit button on Hauppauge Nova-T remote */
 			clutter_main_quit();
 			break;

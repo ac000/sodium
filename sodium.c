@@ -3,7 +3,7 @@
  *
  * DVD cover art viewer / player
  *
- * Copyright (C) 2008 - 2016	Andrew Clayton <andrew@digital-domain.net>
+ * Copyright (C) 2008 - 2017	Andrew Clayton <andrew@digital-domain.net>
  *
  * License: GPLv2. See COPYING
  *
@@ -250,7 +250,7 @@ next:
 
 static void hide_label(void)
 {
-	if (CLUTTER_ACTOR_IS_VISIBLE(label))
+	if (clutter_actor_is_visible(label))
 		clutter_actor_hide(label);
 }
 

@@ -28,6 +28,8 @@
 #include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#include "short_types.h"
+
 #define SODIUM_VERSION	"010"
 
 /* Image grid dimentions */
@@ -77,7 +79,7 @@ static GPtrArray *files;	/* Array to hold image filenames */
 static int array_pos;	/* Current position in file list array */
 static int nfiles;	/* Number of files loaded into file list array */
 /* How many images are currently shown on screen */
-static int loaded_images;
+static u8 displayed_images;
 /* Location of images passed in as argv[1] */
 static char image_path[PATH_MAX];
 static char movie_list[PATH_MAX];	/* Path to movie-list mapping file */
@@ -373,9 +375,9 @@ out:
 
 static void lookup_image(ClutterActor *stage, int img_no)
 {
-	if (img_no <= loaded_images) {
+	if (img_no <= displayed_images) {
 		struct movie_info *mi = g_ptr_array_index(files,
-				array_pos - loaded_images + img_no - 1);
+				array_pos - displayed_images + img_no - 1);
 
 		lookup_video(stage, mi->img_name);
 	} else {
@@ -392,7 +394,7 @@ static void load_images(ClutterActor *stage, int direction)
 	int y = 0;
 	int c = 0;		/* column */
 	int r = 0;		/* row */
-	char image_name[3];	/* 1..99 + \0 */
+	char image_name[4];	/* 1..99 + 1 + \0 */
 
 	if (!images) {
 		images = clutter_actor_new();
@@ -432,7 +434,7 @@ static void load_images(ClutterActor *stage, int direction)
 	}
 
 	/* How many images are on screen */
-	loaded_images = 0;
+	displayed_images = 0;
 
 	/*
 	 * Remove images from the stage before loading new ones,
@@ -471,8 +473,8 @@ static void load_images(ClutterActor *stage, int direction)
 		clutter_actor_set_position(ibox, x, y);
 		clutter_actor_add_child(images, ibox);
 		clutter_actor_show(ibox);
-		snprintf(image_name, sizeof(image_name), "%d",
-				loaded_images + 1);
+		snprintf(image_name, sizeof(image_name), "%hhu",
+				displayed_images + 1);
 		clutter_actor_set_name(ibox, image_name);
 
 		/* Allow the actor to emit events. */
@@ -489,7 +491,7 @@ static void load_images(ClutterActor *stage, int direction)
 		}
 
 		array_pos++;
-		loaded_images++;
+		displayed_images++;
 		/*printf("c = %d, r = %d, x = %d, y = %d, array_pos = %d\n",
 						c, r, x, y, array_pos);*/
 	}
@@ -539,7 +541,7 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		}
 		case CLUTTER_KEY_1...CLUTTER_KEY_9:
 			img_no = sym - 48; /* 1 is sym(49) */
-			if (img_no <= loaded_images)
+			if (img_no <= displayed_images)
 				lookup_image(stage, img_no);
 			else
 				pr_debug("No image at (%d)\n", img_no);

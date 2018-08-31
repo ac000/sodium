@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -g -std=c99 -O2 -fstack-protector-strong -fPIC -Wl,-z,now -pie
+CFLAGS=-Wall -Wextra -g -std=c99 -O2 -fstack-protector-strong -fPIC -Wl,-z,now -pie
 LIBS=`pkg-config --libs clutter-1.0 glib-2.0`
 INCS=`pkg-config --cflags clutter-1.0 glib-2.0`
 

@@ -113,7 +113,7 @@ static void free_movie_info(gpointer data)
 }
 
 /* Reap child pids */
-static void reaper(int signo)
+static void reaper(int signo __attribute__((unused)))
 {
 	wait(NULL);
 }
@@ -343,7 +343,7 @@ static void build_exec_cmd(char *cmd, char *args, char *movie)
  *	fields[2] : command
  *	fields[3] : command arguments
  */
-static void lookup_video(ClutterActor *stage, char *actor)
+static void lookup_video(char *actor)
 {
 	char buf[BUF_SIZE];
 	FILE *fp;
@@ -373,13 +373,13 @@ out:
 	fclose(fp);
 }
 
-static void lookup_image(ClutterActor *stage, int img_no)
+static void lookup_image(int img_no)
 {
 	if (img_no <= displayed_images) {
 		struct movie_info *mi = g_ptr_array_index(files,
 				array_pos - displayed_images + img_no - 1);
 
-		lookup_video(stage, mi->img_name);
+		lookup_video(mi->img_name);
 	} else {
 		pr_debug("No image at (%d)\n", img_no);
 	}
@@ -499,7 +499,7 @@ static void load_images(ClutterActor *stage, int direction)
 
 /* Process keyboard/mouse events */
 static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
-				gpointer user_data)
+				gpointer user_data __attribute__((unused)))
 {
 	static int pset = 0;		/* previous scroll event time */
 	int setd = 0;			/* scroll event time difference */
@@ -542,7 +542,7 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		case CLUTTER_KEY_1...CLUTTER_KEY_9:
 			img_no = sym - 48; /* 1 is sym(49) */
 			if (img_no <= displayed_images)
-				lookup_image(stage, img_no);
+				lookup_image(img_no);
 			else
 				pr_debug("No image at (%d)\n", img_no);
 			break;
@@ -568,6 +568,7 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 			clutter_main_quit();
 			break;
 		}
+		break;
 	}
 	case CLUTTER_SCROLL:
 		/*
@@ -599,7 +600,7 @@ static gboolean input_events_cb(ClutterActor *stage, ClutterEvent *event,
 		if (IS_IMAGE(clutter_actor_get_name(actor))) {
 			reset_image(actor);
 			img_no = atoi(clutter_actor_get_name(actor));
-			lookup_image(stage, img_no);
+			lookup_image(img_no);
 		}
 		break;
 	case CLUTTER_ENTER:
